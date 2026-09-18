@@ -1,0 +1,559 @@
+{% extends "core/base.html" %}
+
+{% block title %}Bảng Điều Khiển Học Viên{% endblock %}
+{% block nav_dash %}nav-active{% endblock %}
+{% block mob_nav_dash %}nav-active{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-8 sm:space-y-10 animate-slide-up">
+    
+    <!-- 1. PAGE HEADER & COUNTDOWN HERO -->
+    <div class="flex flex-col lg:flex-row gap-6 items-stretch">
+        
+        <!-- Welcome Hero Card -->
+        <div class="flex-1 bg-gradient-to-br from-emerald-600 to-teal-800 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-lg flex flex-col justify-between">
+            <div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+            <div class="absolute right-12 top-4 w-24 h-24 bg-teal-500/20 rounded-full blur-xl"></div>
+            
+            <div class="space-y-4 relative z-10">
+                <div class="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                    <span>Lộ trình 4 kỹ năng toàn diện</span>
+                </div>
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                    Chào học viên, <span class="text-amber-300">{{ request.user.username }}</span>! <span class="inline-block px-2.5 py-0.5 bg-amber-400 text-brand-900 rounded-full text-xs font-black tracking-wide ml-2 uppercase shadow-sm align-middle">{{ active_level|default:"A1" }}</span> 🌟
+                </h1>
+                <p class="text-emerald-100 text-sm sm:text-base max-w-xl leading-relaxed">
+                    Chào mừng bạn đến với hệ thống luyện thi IELTS 4 kỹ năng toàn diện. Hãy thiết lập mục tiêu, học tập chuyên cần mỗi ngày để bứt phá band điểm tối đa!
+                </p>
+            </div>
+            
+            <div class="mt-8 flex flex-wrap gap-3 relative z-10">
+                <a href="{% url 'index' %}?level={{ active_level|default:'A1' }}" class="px-5 py-2.5 bg-white text-emerald-800 font-bold rounded-xl text-sm shadow-sm hover:bg-emerald-50 active:scale-[0.98] transition-all flex items-center gap-1.5">
+                    <i class="fas fa-clone"></i> Luyện Flashcard từ vựng
+                </a>
+            </div>
+        </div>
+
+        <!-- Exam Countdown Widget -->
+        <div class="w-full lg:w-80 bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col justify-between items-center text-center">
+            <div>
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Thời gian thi dự kiến</span>
+                <p class="text-slate-800 font-bold text-sm flex items-center justify-center gap-1.5">
+                    <i class="far fa-calendar-alt text-emerald-500"></i>
+                    {{ profile.exam_date|date:"d/m/Y"|default:"Chưa đặt ngày thi" }}
+                </p>
+            </div>
+
+            <!-- Visual Countdown Circle -->
+            <div class="my-5 relative w-36 h-36 flex items-center justify-center">
+                <!-- Outer glowing border -->
+                <div class="absolute inset-0 rounded-full border-4 border-emerald-500/10 animate-pulse"></div>
+                <!-- Inner progress representation -->
+                <div class="absolute inset-2 rounded-full border-4 border-emerald-500 flex flex-col items-center justify-center bg-emerald-50/50 shadow-inner">
+                    <span class="text-4xl font-black text-emerald-600 tracking-tight">
+                        {{ days_remaining|default:"0" }}
+                    </span>
+                    <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Ngày còn lại</span>
+                </div>
+            </div>
+
+            <div class="w-full">
+                {% if days_remaining > 0 %}
+                <p class="text-xs text-slate-500 font-medium leading-relaxed">
+                    Còn khoảng <strong class="text-emerald-600">{{ days_remaining }} ngày</strong> để ôn luyện. Hãy giữ tinh thần vững vàng nhé!
+                </p>
+                {% else %}
+                <p class="text-xs text-red-500 font-semibold">
+                    Đã đến ngày thi! Chúc bạn may mắn bứt phá điểm số cao nhất! 🚀
+                </p>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 2. "YOUR GOALS" SECTION (4 SKILLS CARDS) -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <i class="fas fa-trophy text-amber-500 text-lg"></i>
+                Mục tiêu Điểm số (Your Goals)
+            </h2>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1 rounded-full hidden sm:inline-block">Band target</span>
+                <button onclick="document.getElementById('goal-modal').classList.remove('hidden')" class="text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 px-3 py-1.5 rounded-xl shadow-sm transition-all flex items-center gap-1.5">
+                    <i class="fas fa-edit"></i> Chỉnh sửa
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- Listening Card -->
+            <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div class="absolute right-0 top-0 w-16 h-16 bg-emerald-50 rounded-bl-3xl flex items-center justify-center group-hover:bg-emerald-100 transition-colors">
+                    <i class="fas fa-headphones text-emerald-600 text-lg"></i>
+                </div>
+                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Listening</span>
+                <div class="mt-4 space-y-1">
+                    <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Mục tiêu đạt</p>
+                    <p class="text-3xl font-black text-slate-800" id="display_listening">{{ profile.target_listening|default:"7.5"|floatformat:1 }}</p>
+                </div>
+                <div class="mt-5 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 75%"></div>
+                </div>
+            </div>
+
+            <!-- Reading Card -->
+            <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div class="absolute right-0 top-0 w-16 h-16 bg-blue-50 rounded-bl-3xl flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+                    <i class="fas fa-book-open text-blue-600 text-lg"></i>
+                </div>
+                <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Reading</span>
+                <div class="mt-4 space-y-1">
+                    <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Mục tiêu đạt</p>
+                    <p class="text-3xl font-black text-slate-800" id="display_reading">{{ profile.target_reading|default:"7.5"|floatformat:1 }}</p>
+                </div>
+                <div class="mt-5 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-blue-500 h-1.5 rounded-full" style="width: 80%"></div>
+                </div>
+            </div>
+
+            <!-- Writing Card -->
+            <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div class="absolute right-0 top-0 w-16 h-16 bg-fuchsia-50 rounded-bl-3xl flex items-center justify-center group-hover:bg-fuchsia-100 transition-colors">
+                    <i class="fas fa-pen-nib text-fuchsia-600 text-lg"></i>
+                </div>
+                <span class="text-xs font-bold text-fuchsia-600 bg-fuchsia-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Writing</span>
+                <div class="mt-4 space-y-1">
+                    <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Mục tiêu đạt</p>
+                    <p class="text-3xl font-black text-slate-800" id="display_writing">{{ profile.target_writing|default:"7.0"|floatformat:1 }}</p>
+                </div>
+                <div class="mt-5 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-fuchsia-500 h-1.5 rounded-full" style="width: 70%"></div>
+                </div>
+            </div>
+
+            <!-- Speaking Card -->
+            <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div class="absolute right-0 top-0 w-16 h-16 bg-amber-50 rounded-bl-3xl flex items-center justify-center group-hover:bg-amber-100 transition-colors">
+                    <i class="fas fa-comment-dots text-amber-600 text-lg"></i>
+                </div>
+                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full uppercase tracking-wider">Speaking</span>
+                <div class="mt-4 space-y-1">
+                    <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Mục tiêu đạt</p>
+                    <p class="text-3xl font-black text-slate-800" id="display_speaking">{{ profile.target_speaking|default:"7.0"|floatformat:1 }}</p>
+                </div>
+                <div class="mt-5 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div class="bg-amber-500 h-1.5 rounded-full" style="width: 70%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. DAILY ACTIVITY HEATMAP SECTION (GITHUB STYLE) -->
+    <div class="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-50 pb-4">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fas fa-calendar-check text-emerald-500"></i>
+                    Nhật ký chuyên cần học tập
+                </h2>
+                <p class="text-xs text-slate-400 mt-0.5">Biểu đồ thể hiện tần suất luyện tập hàng ngày trong 18 tuần qua</p>
+            </div>
+            <!-- Heatmap color guide -->
+            <div class="flex items-center gap-1.5 text-[10px] text-slate-400 font-semibold">
+                <span>Ít</span>
+                <div class="w-3 h-3 bg-slate-100 rounded-sm"></div>
+                <div class="w-3 h-3 bg-emerald-100 rounded-sm"></div>
+                <div class="w-3 h-3 bg-emerald-300 rounded-sm"></div>
+                <div class="w-3 h-3 bg-emerald-500 rounded-sm"></div>
+                <div class="w-3 h-3 bg-emerald-700 rounded-sm"></div>
+                <span>Nhiều</span>
+            </div>
+        </div>
+
+        <!-- Heatmap Grid -->
+        <div class="overflow-x-auto">
+            <div class="min-w-[650px] space-y-1 py-1">
+                <!-- Custom Row tags (Mon, Wed, Fri) alongside columns -->
+                <div class="flex gap-3">
+                    <div class="flex flex-col justify-between text-[10px] text-slate-400 font-bold h-[115px] pt-1 pr-1">
+                        <span>Hai</span>
+                        <span>Tư</span>
+                        <span>Sáu</span>
+                        <span>CN</span>
+                    </div>
+                    <!-- Flowed columns of days -->
+                    <div class="flex-1 grid grid-flow-col grid-rows-7 gap-1.5 h-[115px]" style="grid-template-rows: repeat(7, minmax(0, 1fr));">
+                        {% for day in heatmap_data %}
+                        <div class="w-3.5 h-3.5 rounded-sm {{ day.bg_class }} transition-all cursor-pointer relative group flex-shrink-0"
+                             aria-label="{{ day.formatted_date }}: {{ day.count }} bài tập">
+                             <!-- Tooltip popup on hover -->
+                             <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block z-30 bg-slate-800 text-white text-[10px] font-medium py-1.5 px-2 rounded-lg shadow-md whitespace-nowrap">
+                                {{ day.count }} hoạt động - {{ day.formatted_date }}
+                             </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. IELTS 4-SKILLS PRACTICE SECTION -->
+    <div class="space-y-5 bg-white rounded-3xl border border-slate-100 p-6 shadow-sm animate-slide-up">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+            <div>
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fas fa-graduation-cap text-emerald-500"></i>
+                    Đề luyện thi & Bài tập thực hành
+                </h2>
+                <p class="text-xs text-slate-400 mt-0.5">Chọn một bài luyện tập dưới đây để làm bài thi trực tuyến và nhận đánh giá từ AI</p>
+            </div>
+            <!-- Level Selector Tabs in Dashboard -->
+            <div class="flex bg-slate-100 p-1 rounded-xl self-start sm:self-auto shadow-inner">
+                <a href="/course/a1/" class="px-4 py-2 rounded-lg text-xs font-bold transition-all {% if active_level == 'A1' or not active_level %}bg-white text-slate-800 shadow-sm{% else %}text-slate-500 hover:text-slate-800{% endif %}">Cấp độ A1</a>
+                <a href="/course/a2/" class="px-4 py-2 rounded-lg text-xs font-bold transition-all {% if active_level == 'A2' %}bg-white text-slate-800 shadow-sm{% else %}text-slate-500 hover:text-slate-800{% endif %}">Cấp độ A2</a>
+                <a href="/course/b1/" class="px-4 py-2 rounded-lg text-xs font-bold transition-all {% if active_level == 'B1' %}bg-white text-slate-800 shadow-sm{% else %}text-slate-500 hover:text-slate-800{% endif %}">Cấp độ B1</a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Listening Practice Box -->
+            <div class="border border-slate-100 rounded-2xl p-5 bg-slate-50/50 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                        <i class="fas fa-headphones text-emerald-600"></i>
+                        IELTS Listening Tracks
+                    </h3>
+                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">{{ listening_tracks|length }} đề</span>
+                </div>
+                <div class="space-y-2">
+                    {% for track in listening_tracks %}
+                    <div class="bg-white border border-slate-100 rounded-xl p-3 flex items-center justify-between hover:border-emerald-200 transition-all">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0 animate-pulse"></span>
+                            <p class="text-xs sm:text-sm font-semibold text-slate-700 truncate pr-2">{{ track.title }}</p>
+                        </div>
+                        <a href="{% url 'listening_test' track.id %}" 
+                           class="flex-shrink-0 text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100/80 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1">
+                            Làm bài <i class="fas fa-arrow-right text-[10px]"></i>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p class="text-xs text-slate-400 italic">Không có đề thi nghe khả dụng.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Reading Practice Box -->
+            <div class="border border-slate-100 rounded-2xl p-5 bg-slate-50/50 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                        <i class="fas fa-book-open text-blue-600"></i>
+                        IELTS Reading Passages
+                    </h3>
+                    <span class="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">{{ reading_passages|length }} đề</span>
+                </div>
+                <div class="space-y-2">
+                    {% for passage in reading_passages %}
+                    <div class="bg-white border border-slate-100 rounded-xl p-3 flex items-center justify-between hover:border-blue-200 transition-all">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-400 flex-shrink-0 animate-pulse"></span>
+                            <p class="text-xs sm:text-sm font-semibold text-slate-700 truncate pr-2">{{ passage.title }}</p>
+                        </div>
+                        <a href="{% url 'reading_test' passage.id %}" 
+                           class="flex-shrink-0 text-xs font-bold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100/80 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1">
+                            Làm bài <i class="fas fa-arrow-right text-[10px]"></i>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p class="text-xs text-slate-400 italic">Không có đề thi đọc khả dụng.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Writing Practice Box -->
+            <div class="border border-slate-100 rounded-2xl p-5 bg-slate-50/50 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                        <i class="fas fa-pen-nib text-fuchsia-600"></i>
+                        IELTS Writing Tasks
+                    </h3>
+                    <span class="text-[10px] font-bold text-fuchsia-700 bg-fuchsia-50 px-2 py-0.5 rounded-full">{{ writing_tasks|length }} đề</span>
+                </div>
+                <div class="space-y-2">
+                    {% for w_task in writing_tasks %}
+                    <div class="bg-white border border-slate-100 rounded-xl p-3 flex items-center justify-between hover:border-fuchsia-200 transition-all">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full bg-fuchsia-400 flex-shrink-0 animate-pulse"></span>
+                            <p class="text-xs sm:text-sm font-semibold text-slate-700 truncate pr-2">{{ w_task.title }}</p>
+                        </div>
+                        <a href="{% url 'writing_test' w_task.id %}" 
+                           class="flex-shrink-0 text-xs font-bold text-fuchsia-600 hover:text-fuchsia-700 bg-fuchsia-50 hover:bg-fuchsia-100/80 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1">
+                            Làm bài <i class="fas fa-arrow-right text-[10px]"></i>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p class="text-xs text-slate-400 italic">Không có đề thi viết khả dụng.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Speaking Practice Box -->
+            <div class="border border-slate-100 rounded-2xl p-5 bg-slate-50/50 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+                        <i class="fas fa-comment-dots text-amber-600"></i>
+                        IELTS Speaking Cue Cards
+                    </h3>
+                    <span class="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">{{ speaking_prompts|length }} đề</span>
+                </div>
+                <div class="space-y-2">
+                    {% for prompt in speaking_prompts %}
+                    <div class="bg-white border border-slate-100 rounded-xl p-3 flex items-center justify-between hover:border-amber-200 transition-all">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0 animate-pulse"></span>
+                            <p class="text-xs sm:text-sm font-semibold text-slate-700 truncate pr-2">{{ prompt.title }}</p>
+                        </div>
+                        <a href="{% url 'speaking_test' prompt.id %}" 
+                           class="flex-shrink-0 text-xs font-bold text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100/80 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1">
+                            Làm bài <i class="fas fa-arrow-right text-[10px]"></i>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p class="text-xs text-slate-400 italic">Không có đề thi nói khả dụng.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 5. RECENT ACTIVITY LOGS & TIMELINE -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Timeline Logs (Left 2 columns on wide screen) -->
+        <div class="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm lg:col-span-2 space-y-5">
+            <div class="border-b border-slate-50 pb-4">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fas fa-clock text-slate-400"></i>
+                    Lịch sử hoạt động gần đây
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">Danh sách các bài tập bạn đã hoàn thành gần đây</p>
+            </div>
+
+            {% if recent_submissions %}
+            <div class="relative pl-6 border-l-2 border-slate-100 space-y-6 py-2">
+                {% for sub in recent_submissions %}
+                <div class="relative group">
+                    <!-- Timeline node dot -->
+                    <span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full border-4 border-white bg-emerald-500 shadow-sm transition-all group-hover:scale-125 z-10"></span>
+                    
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <!-- Skill badge -->
+                            <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider mb-1
+                                {% if sub.skill_type == 'listening' %}bg-emerald-50 text-emerald-600
+                                {% elif sub.skill_type == 'reading' %}bg-blue-50 text-blue-600
+                                {% elif sub.skill_type == 'writing' %}bg-fuchsia-50 text-fuchsia-600
+                                {% else %}bg-amber-50 text-amber-600{% endif %}">
+                                {{ sub.get_skill_type_display }}
+                            </span>
+                            <h4 class="font-bold text-slate-800 text-sm sm:text-base leading-snug group-hover:text-emerald-600 transition-colors">
+                                {{ sub.task_title }}
+                            </h4>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            {% if sub.score_achieved is not None %}
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
+                                Điểm: {{ sub.score_achieved }}
+                            </span>
+                            {% endif %}
+                            <span class="text-slate-400 text-xs flex items-center gap-1 font-mono">
+                                <i class="far fa-clock"></i>
+                                {{ sub.completed_at|date:"H:i d/m" }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <!-- Empty state activity logs -->
+            <div class="text-center py-12 space-y-4">
+                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto text-slate-300">
+                    <i class="fas fa-folder-open text-2xl"></i>
+                </div>
+                <div class="space-y-1">
+                    <p class="font-bold text-slate-600 text-sm">Chưa ghi nhận hoạt động nào</p>
+                    <p class="text-xs text-slate-400">Hãy ôn tập từ vựng hoặc nộp bài để tích lũy biểu đồ nhiệt chuyên cần!</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Quick Resources / Tips (Right 1 column) -->
+        <div class="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm space-y-5">
+            <div class="border-b border-slate-50 pb-4">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fas fa-lightbulb text-amber-500"></i>
+                    Bí quyết bứt phá điểm thi
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">Lời khuyên hữu ích để nâng điểm IELTS</p>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Tip 1 -->
+                <div class="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-500/10 flex gap-3 items-start">
+                    <span class="text-lg flex-shrink-0 mt-0.5">👂</span>
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Listening</p>
+                        <p class="text-xs text-emerald-700 leading-relaxed">
+                            Hãy tập thói quen vừa nghe vừa ghi chép từ khóa (Note-taking) mỗi ngày để không bị lỡ đáp án quan trọng.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tip 2 -->
+                <div class="p-3 bg-blue-50/50 rounded-2xl border border-blue-500/10 flex gap-3 items-start">
+                    <span class="text-lg flex-shrink-0 mt-0.5">📖</span>
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-blue-800 uppercase tracking-wider">Reading</p>
+                        <p class="text-xs text-blue-700 leading-relaxed">
+                            Áp dụng Skimming để nắm ý chính toàn bài và Scanning để săn tìm nhanh chóng vị trí các con số/tên riêng.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tip 3 -->
+                <div class="p-3 bg-fuchsia-50/50 rounded-2xl border border-fuchsia-500/10 flex gap-3 items-start">
+                    <span class="text-lg flex-shrink-0 mt-0.5">✍️</span>
+                    <div class="space-y-1">
+                        <p class="text-xs font-bold text-fuchsia-800 uppercase tracking-wider">Writing</p>
+                        <p class="text-xs text-fuchsia-700 leading-relaxed">
+                            Phân bổ thời gian hợp lý (20 phút Task 1, 40 phút Task 2). Hãy tập trung vào tính mạch lạc và lập luận sắc bén!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Goal Setting Modal -->
+<div id="goal-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:p-0">
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" aria-hidden="true" onclick="document.getElementById('goal-modal').classList.add('hidden')"></div>
+
+        <!-- Modal panel -->
+        <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md w-full relative z-10 border border-slate-100">
+            <div class="bg-emerald-600 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2" id="modal-title">
+                    <i class="fas fa-bullseye"></i> Thiết lập mục tiêu
+                </h3>
+                <button type="button" onclick="document.getElementById('goal-modal').classList.add('hidden')" class="text-emerald-100 hover:text-white transition-colors focus:outline-none">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="goal-form" class="px-6 py-5 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">Listening</label>
+                        <input type="number" step="0.5" min="0" max="9" id="input_listening" value="{{ profile.target_listening|default:'7.5'|floatformat:1 }}" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 font-bold bg-slate-50 transition-all outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">Reading</label>
+                        <input type="number" step="0.5" min="0" max="9" id="input_reading" value="{{ profile.target_reading|default:'7.5'|floatformat:1 }}" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 font-bold bg-slate-50 transition-all outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-fuchsia-600 uppercase tracking-wider mb-1">Writing</label>
+                        <input type="number" step="0.5" min="0" max="9" id="input_writing" value="{{ profile.target_writing|default:'7.0'|floatformat:1 }}" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 font-bold bg-slate-50 transition-all outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-amber-600 uppercase tracking-wider mb-1">Speaking</label>
+                        <input type="number" step="0.5" min="0" max="9" id="input_speaking" value="{{ profile.target_speaking|default:'7.0'|floatformat:1 }}" class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 font-bold bg-slate-50 transition-all outline-none">
+                    </div>
+                </div>
+                
+                <div id="goal-feedback" class="hidden text-sm font-semibold rounded-xl p-3 text-center"></div>
+                
+                <div class="pt-4 flex justify-end gap-3 border-t border-slate-100 mt-4">
+                    <button type="button" onclick="document.getElementById('goal-modal').classList.add('hidden')" class="px-5 py-2 text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">Hủy</button>
+                    <button type="submit" id="btn-save-goals" class="px-5 py-2 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-sm transition-all flex items-center gap-2">
+                        <span>Lưu thay đổi</span>
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('goal-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btn-save-goals');
+        const feedback = document.getElementById('goal-feedback');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lưu...';
+        
+        const data = {
+            target_listening: parseFloat(document.getElementById('input_listening').value) || 0,
+            target_reading: parseFloat(document.getElementById('input_reading').value) || 0,
+            target_writing: parseFloat(document.getElementById('input_writing').value) || 0,
+            target_speaking: parseFloat(document.getElementById('input_speaking').value) || 0
+        };
+        
+        fetch('/api/user/goals/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                feedback.className = 'text-sm font-semibold rounded-xl p-3 text-center bg-emerald-50 text-emerald-600';
+                feedback.textContent = data.message;
+                feedback.classList.remove('hidden');
+                
+                // Cập nhật UI ngay lập tức
+                document.getElementById('display_listening').textContent = parseFloat(data.data.target_listening).toFixed(1);
+                document.getElementById('display_reading').textContent = parseFloat(data.data.target_reading).toFixed(1);
+                document.getElementById('display_writing').textContent = parseFloat(data.data.target_writing).toFixed(1);
+                document.getElementById('display_speaking').textContent = parseFloat(data.data.target_speaking).toFixed(1);
+                
+                setTimeout(() => {
+                    document.getElementById('goal-modal').classList.add('hidden');
+                    feedback.classList.add('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Lưu thay đổi</span><i class="fas fa-check"></i>';
+                }, 1500);
+            } else {
+                feedback.className = 'text-sm font-semibold rounded-xl p-3 text-center bg-red-50 text-red-600';
+                feedback.textContent = data.error || 'Có lỗi xảy ra.';
+                feedback.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<span>Lưu thay đổi</span><i class="fas fa-check"></i>';
+            }
+        })
+        .catch(err => {
+            feedback.className = 'text-sm font-semibold rounded-xl p-3 text-center bg-red-50 text-red-600';
+            feedback.textContent = 'Lỗi kết nối máy chủ.';
+            feedback.classList.remove('hidden');
+            btn.disabled = false;
+            btn.innerHTML = '<span>Lưu thay đổi</span><i class="fas fa-check"></i>';
+        });
+    });
+</script>
+
+{% endblock %}

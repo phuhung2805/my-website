@@ -1,0 +1,298 @@
+{% load static %}{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ passage.title }} – IELTS Reading Test</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50:  '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#10b981', /* emerald-500 */
+                            600: '#059669', /* emerald-600 */
+                            700: '#047857', /* emerald-700 */
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        /* Smooth scrolling custom scrollbars */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+
+<body class="bg-slate-50 h-full overflow-hidden flex flex-col">
+
+    <!-- 1. STICKY TOP TOOLBAR -->
+    <header class="bg-slate-900 text-white h-16 px-4 sm:px-6 flex items-center justify-between border-b border-slate-800 z-30 flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <span class="bg-emerald-500 text-slate-900 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider">IELTS Reading</span>
+            <h1 class="font-bold text-sm sm:text-base truncate max-w-[200px] sm:max-w-xs md:max-w-md lg:max-w-lg text-slate-100">
+                {{ passage.title }}
+            </h1>
+        </div>
+
+        <!-- Center: Live Countdown Timer -->
+        {% if mode == 'test' %}
+        <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-full text-slate-200">
+            <i class="far fa-clock text-emerald-400 animate-pulse"></i>
+            <span class="text-sm font-bold font-mono tracking-widest text-slate-100" id="timer">40:00</span>
+        </div>
+        {% else %}
+        <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-full text-emerald-400">
+            <i class="fas fa-check-circle"></i>
+            <span class="text-xs sm:text-sm font-bold uppercase tracking-wider">Đã hoàn thành</span>
+        </div>
+        {% endif %}
+
+        <!-- Right: Control Button -->
+        <div>
+            {% if mode == 'test' %}
+            <button type="submit" 
+                    form="testForm"
+                    class="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-slate-900 font-bold text-sm rounded-xl transition-all shadow-md flex items-center gap-1.5">
+                <i class="fas fa-paper-plane"></i> Nộp bài thi
+            </button>
+            {% else %}
+            <a href="{% url 'dashboard' %}"
+               class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm rounded-xl transition-all border border-slate-700 flex items-center gap-1.5">
+                <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+            </a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- 2. SPLIT-SCREEN MAIN CONTENT -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+
+        <!-- LEFT COLUMN: Reading Passage Text (55% Width) -->
+        <section class="w-full md:w-[55%] h-1/2 md:h-full bg-stone-50 border-r border-slate-200 overflow-y-auto px-6 sm:px-10 py-8 select-text">
+            <div class="max-w-2xl mx-auto space-y-6">
+                <!-- Passage Label -->
+                <div class="inline-flex items-center bg-stone-200/60 text-stone-700 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider">
+                    Đoạn văn đọc (Passage)
+                </div>
+                <!-- Title -->
+                <h2 class="text-2xl sm:text-3xl font-black text-stone-900 leading-tight">
+                    {{ passage.title }}
+                </h2>
+                <!-- Decorative underline -->
+                <div class="w-20 h-1 bg-emerald-500 rounded-full"></div>
+                <!-- Content text (rich, academic style) -->
+                <div class="text-stone-800 text-base sm:text-[17px] leading-relaxed sm:leading-loose space-y-6 pt-2 font-serif text-justify">
+                    {{ passage.text_content|linebreaks }}
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Questions Form (45% Width) -->
+        <section class="w-full md:w-[45%] h-1/2 md:h-full bg-white overflow-y-auto px-5 sm:px-8 py-8">
+            <div class="max-w-xl mx-auto space-y-8">
+
+                <!-- Result Score Dashboard Overlay (Mode result only) -->
+                {% if mode == 'result' %}
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 shadow-xl border border-slate-700 relative overflow-hidden animate-slide-up">
+                    <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl"></div>
+                    <div class="relative z-10 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-emerald-500 text-slate-900 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">Kết quả thi</span>
+                            <span class="text-slate-400 text-xs font-semibold">{{ score }} / {{ total_questions }} Câu đúng</span>
+                        </div>
+                        
+                        <div class="flex items-end gap-3">
+                            <span class="text-5xl font-black text-emerald-400 tracking-tight leading-none">{{ band }}</span>
+                            <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">Band Score IELTS</span>
+                        </div>
+                        
+                        <p class="text-slate-200 text-xs sm:text-sm leading-relaxed italic">
+                            "{{ feedback }}"
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Questions Header -->
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-clipboard-list text-slate-400"></i>
+                        Danh sách Câu hỏi (Questions)
+                    </h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Chọn đáp án thích hợp nhất cho từng câu hỏi bên dưới.</p>
+                </div>
+
+                <!-- Form -->
+                <form id="testForm" method="POST" class="space-y-6 pb-12">
+                    {% csrf_token %}
+
+                    {% for q in questions %}
+                    <!-- Question Wrapper Card -->
+                    {% with res_details=results|dict_get:q.id %}
+                    <div class="p-5 rounded-2xl border-2 transition-all relative
+                                {% if mode == 'result' %}
+                                    {% if res_details.is_correct %}
+                                        border-emerald-500 bg-emerald-50/20
+                                    {% else %}
+                                        border-rose-400 bg-rose-50/20
+                                    {% endif %}
+                                {% else %}
+                                    border-slate-100 hover:border-slate-200
+                                {% endif %}">
+                        
+                        <!-- Correct/Incorrect Label -->
+                        {% if mode == 'result' %}
+                        <span class="absolute right-4 top-4 text-lg">
+                            {% if res_details.is_correct %}
+                                <i class="fas fa-circle-check text-emerald-500"></i>
+                            {% else %}
+                                <i class="fas fa-circle-xmark text-rose-500"></i>
+                            {% endif %}
+                        </span>
+                        {% endif %}
+
+                        <div class="flex gap-3">
+                            <!-- Question Number Badge -->
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-800 text-white text-xs font-bold flex items-center justify-center mt-0.5">
+                                {{ forloop.counter }}
+                            </span>
+                            <div class="space-y-4 flex-1">
+                                <!-- Question Text -->
+                                <h4 class="font-semibold text-slate-800 text-sm sm:text-base leading-snug">
+                                    {{ q.question_text }}
+                                </h4>
+
+                                <!-- Multiple Choice Render -->
+                                {% if q.question_type == 'multiple_choice' %}
+                                <div class="grid grid-cols-1 gap-2">
+                                    {% for opt in q.options %}
+                                    {% with opt_char=forloop.counter|char_choice %}
+                                    <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer text-sm
+                                                  hover:border-emerald-500 hover:bg-emerald-50/30 transition-all select-none
+                                                  has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50/40
+                                                  {% if mode == 'result' %}opacity-90 pointer-events-none{% endif %}"
+                                           id="lbl-q{{ q.id }}-{{ forloop.counter }}">
+                                        
+                                        <input class="sr-only" 
+                                               type="radio" 
+                                               name="q_{{ q.id }}" 
+                                               value="{{ opt_char }}"
+                                               {% if mode == 'result' and res_details.user_answer == opt_char %}checked{% endif %}
+                                               required>
+                                        
+                                        <!-- Custom alphabet node A, B, C, D -->
+                                        <span class="flex-shrink-0 w-6 h-6 rounded-lg border-2 border-slate-300 text-slate-500 font-bold text-xs flex items-center justify-center transition-all">
+                                            {{ opt_char }}
+                                        </span>
+                                        <span class="text-slate-700 font-medium leading-snug">{{ opt }}</span>
+                                    </label>
+                                    {% endwith %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                <!-- True/False/Not Given Render -->
+                                {% if q.question_type == 'tfng' %}
+                                <div class="grid grid-cols-3 gap-2">
+                                    {% for opt in "TRUE|FALSE|NOT GIVEN"|split_string:"|" %}
+                                    <label class="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-200 cursor-pointer text-xs font-bold text-slate-500
+                                                  hover:border-emerald-500 hover:bg-emerald-50/30 transition-all select-none text-center
+                                                  has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50/40 has-[:checked]:text-emerald-700
+                                                  {% if mode == 'result' %}opacity-90 pointer-events-none{% endif %}">
+                                        
+                                        <input class="sr-only" 
+                                               type="radio" 
+                                               name="q_{{ q.id }}" 
+                                               value="{{ opt }}"
+                                               {% if mode == 'result' and res_details.user_answer == opt %}checked{% endif %}
+                                               required>
+                                               
+                                        <span>{{ opt }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+
+                                <!-- Display correct answer & user response on result mode -->
+                                {% if mode == 'result' %}
+                                <div class="text-xs pt-2 border-t border-dashed border-slate-200 space-y-1">
+                                    <p class="text-slate-500">
+                                        Đáp án của bạn: <strong class="text-slate-800">{{ res_details.user_answer|default:"(Bỏ trống)" }}</strong>
+                                    </p>
+                                    {% if not res_details.is_correct %}
+                                    <p class="text-emerald-600 font-bold">
+                                        Đáp án chính xác: {{ res_details.correct_answer }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                </form>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 3. LIVE COUNTDOWN TIMER JAVASCRIPT -->
+    {% if mode == 'test' %}
+    <script>
+        (function() {
+            let totalSeconds = 40 * 60; // 40 minutes countdown
+            const timerEl = document.getElementById('timer');
+
+            const interval = setInterval(function() {
+                if (totalSeconds <= 0) {
+                    clearInterval(interval);
+                    alert("Thời gian thi đã hết! Hệ thống tự động nộp bài.");
+                    document.getElementById('testForm').submit();
+                    return;
+                }
+
+                totalSeconds--;
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                
+                const minStr = String(minutes).padStart(2, '0');
+                const secStr = String(seconds).padStart(2, '0');
+                timerEl.textContent = minStr + ':' + secStr;
+
+                // Urgency warning red color at remaining 1 minute
+                if (totalSeconds <= 60) {
+                    timerEl.parentElement.classList.replace('text-slate-200', 'text-red-400');
+                    timerEl.parentElement.classList.replace('border-slate-700', 'border-red-500/30');
+                    timerEl.parentElement.classList.replace('bg-slate-800', 'bg-red-500/10');
+                }
+            }, 1000);
+        })();
+    </script>
+    {% endif %}
+
+</body>
+</html>

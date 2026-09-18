@@ -1,0 +1,287 @@
+{% load static %}{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ track.title }} – IELTS Listening Test</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50:  '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#10b981', /* emerald-500 */
+                            600: '#059669', /* emerald-600 */
+                            700: '#047857', /* emerald-700 */
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+
+<body class="bg-slate-50 h-full flex flex-col">
+
+    <!-- 1. STICKY TOP TOOLBAR WITH CUSTOM AUDIO PLAYER -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 z-30 flex-shrink-0 sticky top-0 shadow-lg">
+        <!-- Top Toolbar -->
+        <div class="px-4 sm:px-6 h-14 flex items-center justify-between border-b border-slate-800/60">
+            <div class="flex items-center gap-3">
+                <span class="bg-emerald-500 text-slate-900 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">IELTS Listening</span>
+                <h1 class="font-bold text-sm sm:text-base truncate max-w-xs md:max-w-md text-slate-100">
+                    {{ track.title }}
+                </h1>
+            </div>
+
+            <!-- Live Countdown Timer -->
+            {% if mode == 'test' %}
+            <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 px-4 py-1 rounded-full text-slate-200">
+                <i class="far fa-clock text-emerald-400 animate-pulse"></i>
+                <span class="text-sm font-bold font-mono tracking-widest text-slate-100" id="timer">40:00</span>
+            </div>
+            {% else %}
+            <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-1 rounded-full text-emerald-400">
+                <i class="fas fa-check-circle"></i>
+                <span class="text-xs sm:text-sm font-bold uppercase tracking-wider">Đã nộp bài</span>
+            </div>
+            {% endif %}
+
+            <div>
+                {% if mode == 'test' %}
+                <button type="submit" 
+                        form="testForm"
+                        class="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-slate-900 font-bold text-xs rounded-lg transition-all shadow-md flex items-center gap-1.5">
+                    <i class="fas fa-paper-plane"></i> Nộp bài
+                </button>
+                {% else %}
+                <a href="{% url 'dashboard' %}"
+                   class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-lg transition-all border border-slate-700 flex items-center gap-1.5">
+                    <i class="fas fa-arrow-left"></i> Dashboard
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Custom Styled Audio Player Bar -->
+        <div class="bg-slate-950 px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center gap-4 justify-between border-t border-slate-800/40">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <div class="w-10 h-10 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
+                    <i class="fas fa-music"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-300">Listening Audio Track</p>
+                    <p class="text-[10px] text-slate-500 truncate max-w-[200px]">{{ track.audio_file|default:"IELTS Section 1 Practice" }}</p>
+                </div>
+            </div>
+            
+            <!-- Standard Audio Player with modern layout -->
+            <div class="w-full sm:max-w-md flex items-center gap-3">
+                <audio id="listening-audio" class="w-full h-8 accent-emerald-500 focus:outline-none" controls preload="auto">
+                    {% if track.audio_file %}
+                    <source src="{{ MEDIA_URL }}{{ track.audio_file }}" type="audio/mpeg">
+                    {% else %}
+                    <!-- Fallback placeholder audio -->
+                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+                    {% endif %}
+                    Trình duyệt của bạn không hỗ trợ audio element.
+                </audio>
+            </div>
+        </div>
+    </header>
+
+    <!-- 2. MAIN QUESTIONS PANEL -->
+    <main class="flex-1 overflow-y-auto px-4 sm:px-6 py-8">
+        <div class="max-w-3xl mx-auto space-y-8">
+
+            <!-- Result Score Dashboard Overlay -->
+            {% if mode == 'result' %}
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 shadow-xl border border-slate-700 relative overflow-hidden animate-slide-up">
+                <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl"></div>
+                <div class="relative z-10 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-emerald-500 text-slate-900 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">Kết quả bài thi Nghe</span>
+                        <span class="text-slate-400 text-xs font-semibold">{{ score }} / {{ total_questions }} Câu đúng</span>
+                    </div>
+                    
+                    <div class="flex items-end gap-3">
+                        <span class="text-5xl font-black text-emerald-400 tracking-tight leading-none">{{ band }}</span>
+                        <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">IELTS Band Score</span>
+                    </div>
+                    
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        Chúc mừng bạn đã hoàn thành bài luyện nghe! Hãy xem lại các câu làm sai bên dưới để tiếp tục rèn kỹ năng.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Instructions -->
+            <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2 mb-2">
+                    <i class="fas fa-info-circle text-emerald-500"></i>
+                    Hướng dẫn làm bài (Instructions)
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                    Nhấn vào nút **Play** ở trên thanh Audio Player để phát tệp âm thanh bài nghe. Bạn vừa nghe vừa điền/chọn đáp án bên dưới tương ứng với từng câu hỏi. Tệp âm thanh chỉ phát **duy nhất một lần** trong kỳ thi IELTS thực tế.
+                </p>
+            </div>
+
+            <!-- Form -->
+            <form id="testForm" method="POST" class="space-y-6 pb-16">
+                {% csrf_token %}
+
+                {% for q in questions %}
+                {% with res_details=results|dict_get:q.id %}
+                <!-- Question Card -->
+                <div class="bg-white p-6 rounded-2xl border-2 transition-all relative
+                            {% if mode == 'result' %}
+                                {% if res_details.is_correct %}
+                                    border-emerald-500 bg-emerald-50/10
+                                    {% else %}
+                                    border-rose-400 bg-rose-50/10
+                                {% endif %}
+                            {% else %}
+                                border-slate-100 hover:border-slate-200 shadow-sm
+                            {% endif %}">
+                    
+                    {% if mode == 'result' %}
+                    <span class="absolute right-6 top-6 text-lg">
+                        {% if res_details.is_correct %}
+                            <i class="fas fa-circle-check text-emerald-500"></i>
+                        {% else %}
+                            <i class="fas fa-circle-xmark text-rose-500"></i>
+                        {% endif %}
+                    </span>
+                    {% endif %}
+
+                    <div class="flex gap-4">
+                        <!-- Number Circle -->
+                        <span class="flex-shrink-0 w-7 h-7 rounded-full bg-slate-800 text-white text-xs font-bold flex items-center justify-center">
+                            {{ forloop.counter }}
+                        </span>
+                        
+                        <div class="space-y-4 flex-1">
+                            <!-- Text -->
+                            <h4 class="font-semibold text-slate-800 text-sm sm:text-base leading-snug">
+                                {{ q.question_text }}
+                            </h4>
+
+                            <!-- Type 1: Multiple Choice choices -->
+                            {% if q.question_type == 'multiple_choice' %}
+                            <div class="grid grid-cols-1 gap-2">
+                                {% for opt in q.options %}
+                                {% with opt_char=forloop.counter|char_choice %}
+                                <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer text-sm
+                                              hover:border-emerald-500 hover:bg-emerald-50/30 transition-all select-none
+                                              has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50/40
+                                              {% if mode == 'result' %}opacity-90 pointer-events-none{% endif %}">
+                                    <input class="sr-only" 
+                                           type="radio" 
+                                           name="q_{{ q.id }}" 
+                                           value="{{ opt_char }}"
+                                           {% if mode == 'result' and res_details.user_answer == opt_char %}checked{% endif %}
+                                           required>
+                                    <span class="flex-shrink-0 w-6 h-6 rounded-lg border-2 border-slate-300 text-slate-500 font-bold text-xs flex items-center justify-center transition-all">
+                                        {{ opt_char }}
+                                    </span>
+                                    <span class="text-slate-700 font-medium">{{ opt }}</span>
+                                </label>
+                                {% endwith %}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <!-- Type 2: Fill in the Blank choice -->
+                            {% if q.question_type == 'fill_blank' %}
+                            <div class="max-w-xs relative rounded-xl shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fas fa-keyboard text-xs"></i>
+                                </div>
+                                <input type="text" 
+                                       name="q_{{ q.id }}" 
+                                       placeholder="Gõ đáp án của bạn..." 
+                                       value="{% if mode == 'result' %}{{ res_details.user_answer }}{% endif %}"
+                                       class="block w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl text-slate-700 text-sm
+                                              focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all
+                                              {% if mode == 'result' %}bg-slate-50 pointer-events-none{% endif %}"
+                                       required>
+                            </div>
+                            {% endif %}
+
+                            <!-- Answers on Result -->
+                            {% if mode == 'result' %}
+                            <div class="text-xs pt-2 border-t border-dashed border-slate-200 space-y-1">
+                                <p class="text-slate-500">Đáp án của bạn: <strong class="text-slate-800">{{ res_details.user_answer|default:"(Bỏ trống)" }}</strong></p>
+                                {% if not res_details.is_correct %}
+                                <p class="text-emerald-600 font-bold">Đáp án chính xác: {{ res_details.correct_answer }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+                {% endfor %}
+            </form>
+
+        </div>
+    </main>
+
+    <!-- COUNTDOWN TIMER JS -->
+    {% if mode == 'test' %}
+    <script>
+        (function() {
+            let totalSeconds = 40 * 60; // 40 minutes countdown
+            const timerEl = document.getElementById('timer');
+
+            const interval = setInterval(function() {
+                if (totalSeconds <= 0) {
+                    clearInterval(interval);
+                    alert("Thời gian thi đã hết! Hệ thống tự động nộp bài.");
+                    document.getElementById('testForm').submit();
+                    return;
+                }
+
+                totalSeconds--;
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                
+                const minStr = String(minutes).padStart(2, '0');
+                const secStr = String(seconds).padStart(2, '0');
+                timerEl.textContent = minStr + ':' + secStr;
+
+                if (totalSeconds <= 60) {
+                    timerEl.parentElement.classList.replace('text-slate-200', 'text-red-400');
+                    timerEl.parentElement.classList.replace('border-slate-700', 'border-red-500/30');
+                    timerEl.parentElement.classList.replace('bg-slate-800', 'bg-red-500/10');
+                }
+            }, 1000);
+        })();
+    </script>
+    {% endif %}
+
+</body>
+</html>

@@ -1,0 +1,274 @@
+{% load static %}{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ task.title }} – IELTS Writing Test</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50:  '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#10b981', /* emerald-500 */
+                            600: '#059669', /* emerald-600 */
+                            700: '#047857', /* emerald-700 */
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+
+<body class="bg-slate-50 h-full overflow-hidden flex flex-col">
+
+    <!-- 1. STICKY TOP TOOLBAR -->
+    <header class="bg-slate-900 text-white h-16 px-4 sm:px-6 flex items-center justify-between border-b border-slate-800 z-30 flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <span class="bg-emerald-500 text-slate-900 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider">IELTS Writing</span>
+            <h1 class="font-bold text-sm sm:text-base truncate max-w-[200px] sm:max-w-xs md:max-w-md lg:max-w-lg text-slate-100">
+                {{ task.title }}
+            </h1>
+        </div>
+
+        <!-- Center: Live Countdown Timer -->
+        {% if mode == 'test' %}
+        <div class="flex items-center gap-2 bg-slate-800 border border-slate-700 px-4 py-1.5 rounded-full text-slate-200">
+            <i class="far fa-clock text-emerald-400 animate-pulse"></i>
+            <span class="text-sm font-bold font-mono tracking-widest text-slate-100" id="timer">40:00</span>
+        </div>
+        {% else %}
+        <div class="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-full text-emerald-400">
+            <i class="fas fa-check-circle"></i>
+            <span class="text-xs sm:text-sm font-bold uppercase tracking-wider">Đã hoàn thành</span>
+        </div>
+        {% endif %}
+
+        <!-- Right: Control Button -->
+        <div>
+            {% if mode == 'test' %}
+            <button type="submit" 
+                    form="writingForm"
+                    class="px-5 py-2 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-slate-900 font-bold text-sm rounded-xl transition-all shadow-md flex items-center gap-1.5">
+                <i class="fas fa-paper-plane"></i> Nộp bài viết
+            </button>
+            {% else %}
+            <a href="{% url 'dashboard' %}"
+               class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm rounded-xl transition-all border border-slate-700 flex items-center gap-1.5">
+                <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+            </a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- 2. SPLIT-SCREEN MAIN CONTENT -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+
+        <!-- LEFT COLUMN: Writing Prompt / Instructions (45% Width) -->
+        <section class="w-full md:w-[45%] h-1/2 md:h-full bg-stone-50 border-r border-slate-200 overflow-y-auto px-6 sm:px-10 py-8 select-text">
+            <div class="max-w-2xl mx-auto space-y-6">
+                <!-- Prompt Label -->
+                <div class="inline-flex items-center bg-amber-100 text-amber-800 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider">
+                    Đề bài luận (Writing Task)
+                </div>
+                <!-- Title -->
+                <h2 class="text-2xl font-black text-stone-900 leading-tight">
+                    {{ task.title }}
+                </h2>
+                <div class="w-20 h-1 bg-emerald-500 rounded-full"></div>
+
+                <!-- IELTS Standard Instructions Box -->
+                <div class="bg-white rounded-2xl border border-stone-200 p-5 space-y-3 shadow-sm">
+                    <h3 class="font-bold text-stone-800 text-xs sm:text-sm flex items-center gap-2 uppercase tracking-wide">
+                        <i class="fas fa-info-circle text-amber-500"></i>
+                        IELTS Standard Instructions
+                    </h3>
+                    <ul class="text-xs text-stone-600 space-y-2 list-disc pl-4 leading-relaxed">
+                        <li>You should spend about 40 minutes on this task.</li>
+                        <li>Write about the topic below, giving reasons and examples to support your arguments.</li>
+                        <li>Write at least 250 words. Write neatly and structure your essay in multiple paragraphs.</li>
+                    </ul>
+                </div>
+
+                <!-- Prompt Content text -->
+                <div class="bg-white/80 rounded-2xl border border-stone-200 p-6 shadow-sm">
+                    <p class="text-stone-800 text-base sm:text-lg font-medium leading-relaxed font-serif text-justify whitespace-pre-line">
+                        {{ task.prompt_text }}
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Essay Textarea / Results (55% Width) -->
+        <section class="w-full md:w-[55%] h-1/2 md:h-full bg-white overflow-y-auto px-6 sm:px-10 py-8 flex flex-col">
+            <div class="max-w-3xl mx-auto w-full flex-1 flex flex-col space-y-6">
+
+                <!-- Mode Result: Display Score Card and Feedback -->
+                {% if mode == 'result' %}
+                <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 shadow-xl border border-slate-700 relative overflow-hidden animate-slide-up">
+                    <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl"></div>
+                    <div class="relative z-10 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-emerald-500 text-slate-900 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">Đánh giá kết quả</span>
+                            <span class="text-slate-400 text-xs font-semibold">Độ dài: {{ word_count }} từ</span>
+                        </div>
+                        
+                        <div class="flex items-end gap-3">
+                            <span class="text-5xl font-black text-emerald-400 tracking-tight leading-none">{{ band }}</span>
+                            <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">Ước lượng Band Score</span>
+                        </div>
+                        
+                        <p class="text-slate-200 text-xs sm:text-sm leading-relaxed italic">
+                            "{{ feedback }}"
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Read-only Essay Content -->
+                <div class="flex-1 flex flex-col space-y-3">
+                    <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-file-alt text-slate-400"></i>
+                        Bài viết của bạn:
+                    </h3>
+                    <div class="flex-1 p-6 bg-slate-50 border border-slate-200 rounded-2xl overflow-y-auto text-slate-800 font-serif leading-relaxed text-justify whitespace-pre-line text-base">
+                        {{ essay_text }}
+                    </div>
+                </div>
+                {% else %}
+
+                <!-- Mode Test: Live Textarea and Word Counter -->
+                <form id="writingForm" method="POST" class="flex-1 flex flex-col space-y-4">
+                    {% csrf_token %}
+                    
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                            <i class="fas fa-pen-nib text-slate-400"></i>
+                            Khung Soạn Thảo (Essay Editor)
+                        </h3>
+                        <!-- Word count status pill -->
+                        <div class="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full">
+                            <span id="wordCountText">0 / 250</span> từ
+                        </div>
+                    </div>
+
+                    <!-- Beautiful interactive textarea -->
+                    <div class="flex-1 flex flex-col relative">
+                        <textarea id="essayTextarea" 
+                                  name="essay_text" 
+                                  placeholder="Bắt đầu viết bài luận tiếng Anh của bạn tại đây..." 
+                                  class="flex-grow w-full min-h-[350px] md:min-h-[400px] p-6 border-2 border-slate-200 rounded-2xl text-slate-800 text-base leading-relaxed font-serif focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all resize-none shadow-inner"
+                                  required></textarea>
+                    </div>
+
+                    <!-- Progress bar of target word length -->
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-[11px] font-bold text-slate-400">
+                            <span>Mục tiêu tối thiểu: 250 từ</span>
+                            <span id="progressPercent">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200/50">
+                            <div id="progressBar" class="bg-amber-400 h-full rounded-full transition-all duration-300 w-0"></div>
+                        </div>
+                    </div>
+                </form>
+                {% endif %}
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- COUNTDOWN & WORD COUNTER JS -->
+    {% if mode == 'test' %}
+    <script>
+        (function() {
+            // 1. Live Countdown Timer (40 minutes)
+            let totalSeconds = 40 * 60;
+            const timerEl = document.getElementById('timer');
+
+            const interval = setInterval(function() {
+                if (totalSeconds <= 0) {
+                    clearInterval(interval);
+                    alert("Thời gian thi viết đã hết! Hệ thống tự động nộp bài của bạn.");
+                    document.getElementById('writingForm').submit();
+                    return;
+                }
+
+                totalSeconds--;
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                
+                const minStr = String(minutes).padStart(2, '0');
+                const secStr = String(seconds).padStart(2, '0');
+                timerEl.textContent = minStr + ':' + secStr;
+
+                if (totalSeconds <= 60) {
+                    timerEl.parentElement.classList.replace('text-slate-200', 'text-red-400');
+                    timerEl.parentElement.classList.replace('border-slate-700', 'border-red-500/30');
+                    timerEl.parentElement.classList.replace('bg-slate-800', 'bg-red-500/10');
+                }
+            }, 1000);
+
+            // 2. Real-time Word Counter and Progress Bar
+            const textarea = document.getElementById('essayTextarea');
+            const countText = document.getElementById('wordCountText');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressBar = document.getElementById('progressBar');
+
+            function updateWordCount() {
+                const text = textarea.value.trim();
+                const words = text ? text.split(/\s+/) : [];
+                const count = words.length;
+
+                // Update counter text
+                countText.textContent = `${count} / 250`;
+
+                // Calculate progress
+                const percent = Math.min(100, Math.round((count / 250) * 100));
+                progressPercent.textContent = `${percent}%`;
+                progressBar.style.width = `${percent}%`;
+
+                // Color changes based on progress
+                if (count >= 250) {
+                    progressBar.className = 'bg-emerald-500 h-full rounded-full transition-all duration-300';
+                    countText.parentElement.className = 'flex items-center gap-2 text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full';
+                } else if (count >= 150) {
+                    progressBar.className = 'bg-yellow-400 h-full rounded-full transition-all duration-300';
+                    countText.parentElement.className = 'flex items-center gap-2 text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full';
+                } else {
+                    progressBar.className = 'bg-amber-400 h-full rounded-full transition-all duration-300';
+                    countText.parentElement.className = 'flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full';
+                }
+            }
+
+            textarea.addEventListener('input', updateWordCount);
+            // Initial call
+            updateWordCount();
+        })();
+    </script>
+    {% endif %}
+
+</body>
+</html>

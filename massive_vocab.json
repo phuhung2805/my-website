@@ -1,0 +1,1058 @@
+{
+    "Tiếng Anh A1-A2 Cơ Bản": [
+        {
+            "word": "hello",
+            "meaning": "xin chào",
+            "word_type": "other",
+            "example": "Hello, how are you?",
+            "ipa": "/hɛˈloʊ/"
+        },
+        {
+            "word": "goodbye",
+            "meaning": "tạm biệt",
+            "word_type": "other",
+            "example": "Goodbye, see you tomorrow.",
+            "ipa": "/ɡʊdˈbaɪ/"
+        },
+        {
+            "word": "thank",
+            "meaning": "cảm ơn",
+            "word_type": "verb",
+            "example": "I want to thank you for your help.",
+            "ipa": "/θæŋk/"
+        },
+        {
+            "word": "please",
+            "meaning": "vui lòng",
+            "word_type": "adverb",
+            "example": "Could you please open the door?",
+            "ipa": "/pliːz/"
+        },
+        {
+            "word": "sorry",
+            "meaning": "xin lỗi",
+            "word_type": "adjective",
+            "example": "I am sorry for being late.",
+            "ipa": "/ˈsɑːri/"
+        },
+        {
+            "word": "yes",
+            "meaning": "vâng, có",
+            "word_type": "other",
+            "example": "Yes, I understand.",
+            "ipa": "/jɛs/"
+        },
+        {
+            "word": "no",
+            "meaning": "không",
+            "word_type": "other",
+            "example": "No, I don't want any.",
+            "ipa": "/noʊ/"
+        },
+        {
+            "word": "friend",
+            "meaning": "bạn bè",
+            "word_type": "noun",
+            "example": "She is my best friend.",
+            "ipa": "/frɛnd/"
+        },
+        {
+            "word": "family",
+            "meaning": "gia đình",
+            "word_type": "noun",
+            "example": "I love my family.",
+            "ipa": "/ˈfæmɪli/"
+        },
+        {
+            "word": "water",
+            "meaning": "nước",
+            "word_type": "noun",
+            "example": "Can I have a glass of water?",
+            "ipa": "/ˈwɔːtər/"
+        },
+        {
+            "word": "food",
+            "meaning": "thức ăn",
+            "word_type": "noun",
+            "example": "The food here is delicious.",
+            "ipa": "/fuːd/"
+        },
+        {
+            "word": "eat",
+            "meaning": "ăn",
+            "word_type": "verb",
+            "example": "I like to eat apples.",
+            "ipa": "/iːt/"
+        },
+        {
+            "word": "drink",
+            "meaning": "uống",
+            "word_type": "verb",
+            "example": "She drinks coffee every morning.",
+            "ipa": "/drɪŋk/"
+        },
+        {
+            "word": "sleep",
+            "meaning": "ngủ",
+            "word_type": "verb",
+            "example": "I need to sleep early tonight.",
+            "ipa": "/sliːp/"
+        },
+        {
+            "word": "work",
+            "meaning": "làm việc",
+            "word_type": "verb",
+            "example": "He works at a bank.",
+            "ipa": "/wɜːrk/"
+        },
+        {
+            "word": "study",
+            "meaning": "học tập",
+            "word_type": "verb",
+            "example": "I study English every day.",
+            "ipa": "/ˈstʌdi/"
+        },
+        {
+            "word": "book",
+            "meaning": "cuốn sách",
+            "word_type": "noun",
+            "example": "This is a very interesting book.",
+            "ipa": "/bʊk/"
+        },
+        {
+            "word": "pen",
+            "meaning": "cái bút",
+            "word_type": "noun",
+            "example": "Can I borrow your pen?",
+            "ipa": "/pɛn/"
+        },
+        {
+            "word": "car",
+            "meaning": "ô tô",
+            "word_type": "noun",
+            "example": "He drives a red car.",
+            "ipa": "/kɑːr/"
+        },
+        {
+            "word": "bus",
+            "meaning": "xe buýt",
+            "word_type": "noun",
+            "example": "I take the bus to school.",
+            "ipa": "/bʌs/"
+        },
+        {
+            "word": "house",
+            "meaning": "ngôi nhà",
+            "word_type": "noun",
+            "example": "They live in a big house.",
+            "ipa": "/haʊs/"
+        },
+        {
+            "word": "room",
+            "meaning": "căn phòng",
+            "word_type": "noun",
+            "example": "My room is very clean.",
+            "ipa": "/ruːm/"
+        },
+        {
+            "word": "door",
+            "meaning": "cánh cửa",
+            "word_type": "noun",
+            "example": "Please close the door.",
+            "ipa": "/dɔːr/"
+        },
+        {
+            "word": "window",
+            "meaning": "cửa sổ",
+            "word_type": "noun",
+            "example": "Look out the window.",
+            "ipa": "/ˈwɪndoʊ/"
+        },
+        {
+            "word": "table",
+            "meaning": "cái bàn",
+            "word_type": "noun",
+            "example": "Put the books on the table.",
+            "ipa": "/ˈteɪbəl/"
+        },
+        {
+            "word": "chair",
+            "meaning": "cái ghế",
+            "word_type": "noun",
+            "example": "Sit on this chair.",
+            "ipa": "/tʃɛr/"
+        },
+        {
+            "word": "time",
+            "meaning": "thời gian",
+            "word_type": "noun",
+            "example": "What time is it?",
+            "ipa": "/taɪm/"
+        },
+        {
+            "word": "day",
+            "meaning": "ngày",
+            "word_type": "noun",
+            "example": "Have a nice day!",
+            "ipa": "/deɪ/"
+        },
+        {
+            "word": "night",
+            "meaning": "đêm",
+            "word_type": "noun",
+            "example": "Good night!",
+            "ipa": "/naɪt/"
+        },
+        {
+            "word": "morning",
+            "meaning": "buổi sáng",
+            "word_type": "noun",
+            "example": "Good morning, everyone.",
+            "ipa": "/ˈmɔːrnɪŋ/"
+        },
+        {
+            "word": "today",
+            "meaning": "hôm nay",
+            "word_type": "noun",
+            "example": "Today is Monday.",
+            "ipa": "/təˈdeɪ/"
+        },
+        {
+            "word": "tomorrow",
+            "meaning": "ngày mai",
+            "word_type": "noun",
+            "example": "I will see you tomorrow.",
+            "ipa": "/təˈmɔːroʊ/"
+        },
+        {
+            "word": "yesterday",
+            "meaning": "hôm qua",
+            "word_type": "noun",
+            "example": "It rained yesterday.",
+            "ipa": "/ˈjɛstərdeɪ/"
+        },
+        {
+            "word": "week",
+            "meaning": "tuần",
+            "word_type": "noun",
+            "example": "I have an exam next week.",
+            "ipa": "/wiːk/"
+        },
+        {
+            "word": "month",
+            "meaning": "tháng",
+            "word_type": "noun",
+            "example": "My birthday is this month.",
+            "ipa": "/mʌnθ/"
+        },
+        {
+            "word": "year",
+            "meaning": "năm",
+            "word_type": "noun",
+            "example": "Happy new year!",
+            "ipa": "/jɪr/"
+        },
+        {
+            "word": "man",
+            "meaning": "đàn ông",
+            "word_type": "noun",
+            "example": "He is a good man.",
+            "ipa": "/mæn/"
+        },
+        {
+            "word": "woman",
+            "meaning": "phụ nữ",
+            "word_type": "noun",
+            "example": "She is a beautiful woman.",
+            "ipa": "/ˈwʊmən/"
+        },
+        {
+            "word": "child",
+            "meaning": "trẻ em",
+            "word_type": "noun",
+            "example": "The child is playing.",
+            "ipa": "/tʃaɪld/"
+        },
+        {
+            "word": "money",
+            "meaning": "tiền",
+            "word_type": "noun",
+            "example": "I don't have enough money.",
+            "ipa": "/ˈmʌni/"
+        },
+        {
+            "word": "buy",
+            "meaning": "mua",
+            "word_type": "verb",
+            "example": "I want to buy a new phone.",
+            "ipa": "/baɪ/"
+        },
+        {
+            "word": "sell",
+            "meaning": "bán",
+            "word_type": "verb",
+            "example": "They sell fresh fruits here.",
+            "ipa": "/sɛl/"
+        },
+        {
+            "word": "pay",
+            "meaning": "trả tiền",
+            "word_type": "verb",
+            "example": "Can I pay by credit card?",
+            "ipa": "/peɪ/"
+        },
+        {
+            "word": "love",
+            "meaning": "yêu",
+            "word_type": "verb",
+            "example": "I love playing tennis.",
+            "ipa": "/lʌv/"
+        },
+        {
+            "word": "like",
+            "meaning": "thích",
+            "word_type": "verb",
+            "example": "Do you like coffee?",
+            "ipa": "/laɪk/"
+        },
+        {
+            "word": "happy",
+            "meaning": "hạnh phúc",
+            "word_type": "adjective",
+            "example": "I am very happy today.",
+            "ipa": "/ˈhæpi/"
+        },
+        {
+            "word": "sad",
+            "meaning": "buồn",
+            "word_type": "adjective",
+            "example": "He looks sad.",
+            "ipa": "/sæd/"
+        },
+        {
+            "word": "angry",
+            "meaning": "tức giận",
+            "word_type": "adjective",
+            "example": "Please don't be angry.",
+            "ipa": "/ˈæŋɡri/"
+        },
+        {
+            "word": "tired",
+            "meaning": "mệt mỏi",
+            "word_type": "adjective",
+            "example": "I am too tired to work.",
+            "ipa": "/ˈtaɪərd/"
+        },
+        {
+            "word": "beautiful",
+            "meaning": "đẹp",
+            "word_type": "adjective",
+            "example": "That is a beautiful painting.",
+            "ipa": "/ˈbjuːtɪfəl/"
+        }
+    ],
+    "Tiếng Anh Chuyên ngành IT": [
+        {
+            "word": "network",
+            "meaning": "mạng máy tính",
+            "word_type": "noun",
+            "example": "The local network is down.",
+            "ipa": "/ˈnɛtwɜːrk/"
+        },
+        {
+            "word": "server",
+            "meaning": "máy chủ",
+            "word_type": "noun",
+            "example": "The application is hosted on a cloud server.",
+            "ipa": "/ˈsɜːrvər/"
+        },
+        {
+            "word": "client",
+            "meaning": "máy khách",
+            "word_type": "noun",
+            "example": "The client requests data from the server.",
+            "ipa": "/ˈklaɪənt/"
+        },
+        {
+            "word": "database",
+            "meaning": "cơ sở dữ liệu",
+            "word_type": "noun",
+            "example": "We need to optimize the database queries.",
+            "ipa": "/ˈdeɪtəbeɪs/"
+        },
+        {
+            "word": "software",
+            "meaning": "phần mềm",
+            "word_type": "noun",
+            "example": "He is a software engineer.",
+            "ipa": "/ˈsɔːftwɛr/"
+        },
+        {
+            "word": "hardware",
+            "meaning": "phần cứng",
+            "word_type": "noun",
+            "example": "The hardware needs to be upgraded.",
+            "ipa": "/ˈhɑːrdwɛr/"
+        },
+        {
+            "word": "router",
+            "meaning": "bộ định tuyến",
+            "word_type": "noun",
+            "example": "Restart the router if the internet fails.",
+            "ipa": "/ˈraʊtər/"
+        },
+        {
+            "word": "switch",
+            "meaning": "bộ chuyển mạch",
+            "word_type": "noun",
+            "example": "Connect the cable to the network switch.",
+            "ipa": "/swɪtʃ/"
+        },
+        {
+            "word": "vlan",
+            "meaning": "mạng LAN ảo",
+            "word_type": "noun",
+            "example": "We configured a VLAN for the guest network.",
+            "ipa": "/ˈviːlæn/"
+        },
+        {
+            "word": "firewall",
+            "meaning": "tường lửa",
+            "word_type": "noun",
+            "example": "The firewall blocked the malicious request.",
+            "ipa": "/ˈfaɪərwɔːl/"
+        },
+        {
+            "word": "algorithm",
+            "meaning": "thuật toán",
+            "word_type": "noun",
+            "example": "This sorting algorithm is very efficient.",
+            "ipa": "/ˈælɡərɪðəm/"
+        },
+        {
+            "word": "variable",
+            "meaning": "biến số",
+            "word_type": "noun",
+            "example": "Declare a variable before using it.",
+            "ipa": "/ˈvɛriəbəl/"
+        },
+        {
+            "word": "function",
+            "meaning": "hàm",
+            "word_type": "noun",
+            "example": "This function returns a boolean value.",
+            "ipa": "/ˈfʌŋkʃən/"
+        },
+        {
+            "word": "loop",
+            "meaning": "vòng lặp",
+            "word_type": "noun",
+            "example": "Use a for loop to iterate over the array.",
+            "ipa": "/luːp/"
+        },
+        {
+            "word": "syntax",
+            "meaning": "cú pháp",
+            "word_type": "noun",
+            "example": "A syntax error prevented the code from compiling.",
+            "ipa": "/ˈsɪntæks/"
+        },
+        {
+            "word": "compile",
+            "meaning": "biên dịch",
+            "word_type": "verb",
+            "example": "You need to compile the C++ code first.",
+            "ipa": "/kəmˈpaɪl/"
+        },
+        {
+            "word": "debug",
+            "meaning": "gỡ lỗi",
+            "word_type": "verb",
+            "example": "It took hours to debug the application.",
+            "ipa": "/diːˈbʌɡ/"
+        },
+        {
+            "word": "deploy",
+            "meaning": "triển khai",
+            "word_type": "verb",
+            "example": "We will deploy the new version tomorrow.",
+            "ipa": "/dɪˈplɔɪ/"
+        },
+        {
+            "word": "framework",
+            "meaning": "bộ khung phát triển",
+            "word_type": "noun",
+            "example": "Django is a popular web framework.",
+            "ipa": "/ˈfreɪmwɜːrk/"
+        },
+        {
+            "word": "frontend",
+            "meaning": "giao diện người dùng",
+            "word_type": "noun",
+            "example": "He specializes in frontend development using React.",
+            "ipa": "/ˈfrʌntˌɛnd/"
+        },
+        {
+            "word": "backend",
+            "meaning": "hệ thống máy chủ",
+            "word_type": "noun",
+            "example": "The backend is written in Python.",
+            "ipa": "/ˈbækˌɛnd/"
+        },
+        {
+            "word": "api",
+            "meaning": "giao diện lập trình ứng dụng",
+            "word_type": "noun",
+            "example": "We fetch data from a RESTful API.",
+            "ipa": "/ˌeɪ pi ˈaɪ/"
+        },
+        {
+            "word": "encryption",
+            "meaning": "mã hóa",
+            "word_type": "noun",
+            "example": "End-to-end encryption secures your messages.",
+            "ipa": "/ɪnˈkrɪpʃən/"
+        },
+        {
+            "word": "bandwidth",
+            "meaning": "băng thông",
+            "word_type": "noun",
+            "example": "Video streaming requires high bandwidth.",
+            "ipa": "/ˈbændwɪdθ/"
+        },
+        {
+            "word": "latency",
+            "meaning": "độ trễ",
+            "word_type": "noun",
+            "example": "Gamers hate high latency.",
+            "ipa": "/ˈleɪtənsi/"
+        },
+        {
+            "word": "protocol",
+            "meaning": "giao thức",
+            "word_type": "noun",
+            "example": "HTTP is a network protocol.",
+            "ipa": "/ˈproʊtəkɔːl/"
+        },
+        {
+            "word": "repository",
+            "meaning": "kho chứa mã nguồn",
+            "word_type": "noun",
+            "example": "Push your code to the Git repository.",
+            "ipa": "/rɪˈpɑːzətɔːri/"
+        },
+        {
+            "word": "commit",
+            "meaning": "lưu thay đổi",
+            "word_type": "verb",
+            "example": "Don't forget to commit your changes.",
+            "ipa": "/kəˈmɪt/"
+        },
+        {
+            "word": "merge",
+            "meaning": "gộp mã",
+            "word_type": "verb",
+            "example": "I will merge the pull request.",
+            "ipa": "/mɜːrdʒ/"
+        },
+        {
+            "word": "branch",
+            "meaning": "nhánh (mã nguồn)",
+            "word_type": "noun",
+            "example": "Create a new branch for this feature.",
+            "ipa": "/bræntʃ/"
+        },
+        {
+            "word": "pointer",
+            "meaning": "con trỏ",
+            "word_type": "noun",
+            "example": "A pointer stores a memory address in C++.",
+            "ipa": "/ˈpɔɪntər/"
+        },
+        {
+            "word": "inheritance",
+            "meaning": "sự kế thừa",
+            "word_type": "noun",
+            "example": "Inheritance is a key concept in OOP.",
+            "ipa": "/ɪnˈhɛrɪtəns/"
+        },
+        {
+            "word": "polymorphism",
+            "meaning": "tính đa hình",
+            "word_type": "noun",
+            "example": "Polymorphism allows objects to take many forms.",
+            "ipa": "/ˌpɑːliˈmɔːrfɪzəm/"
+        },
+        {
+            "word": "encapsulation",
+            "meaning": "tính đóng gói",
+            "word_type": "noun",
+            "example": "Encapsulation hides the internal state.",
+            "ipa": "/ɪnˌkæpsəˈleɪʃən/"
+        },
+        {
+            "word": "cache",
+            "meaning": "bộ nhớ đệm",
+            "word_type": "noun",
+            "example": "Clear the browser cache if the page doesn't load.",
+            "ipa": "/kæʃ/"
+        },
+        {
+            "word": "cookie",
+            "meaning": "tệp tin lưu thông tin web",
+            "word_type": "noun",
+            "example": "This website uses cookies to track sessions.",
+            "ipa": "/ˈkʊki/"
+        },
+        {
+            "word": "authentication",
+            "meaning": "xác thực",
+            "word_type": "noun",
+            "example": "User authentication is required to access this page.",
+            "ipa": "/ɔːˌθɛntɪˈkeɪʃən/"
+        },
+        {
+            "word": "authorization",
+            "meaning": "phân quyền",
+            "word_type": "noun",
+            "example": "Authorization determines what a user can do.",
+            "ipa": "/ˌɔːθərəˈzeɪʃən/"
+        },
+        {
+            "word": "token",
+            "meaning": "chuỗi xác thực",
+            "word_type": "noun",
+            "example": "The API requires a valid JWT token.",
+            "ipa": "/ˈtoʊkən/"
+        },
+        {
+            "word": "agile",
+            "meaning": "phương pháp phát triển linh hoạt",
+            "word_type": "noun",
+            "example": "Our team uses the Agile methodology.",
+            "ipa": "/ˈædʒaɪl/"
+        },
+        {
+            "word": "scrum",
+            "meaning": "khung làm việc Scrum",
+            "word_type": "noun",
+            "example": "We have a daily Scrum meeting at 9 AM.",
+            "ipa": "/skrʌm/"
+        },
+        {
+            "word": "sprint",
+            "meaning": "chu kỳ phát triển ngắn",
+            "word_type": "noun",
+            "example": "This task is scheduled for the next sprint.",
+            "ipa": "/sprɪnt/"
+        },
+        {
+            "word": "bug",
+            "meaning": "lỗi phần mềm",
+            "word_type": "noun",
+            "example": "We need to fix this bug before release.",
+            "ipa": "/bʌɡ/"
+        },
+        {
+            "word": "patch",
+            "meaning": "bản vá lỗi",
+            "word_type": "noun",
+            "example": "A security patch was released yesterday.",
+            "ipa": "/pætʃ/"
+        },
+        {
+            "word": "terminal",
+            "meaning": "cửa sổ dòng lệnh",
+            "word_type": "noun",
+            "example": "Run the command in your terminal.",
+            "ipa": "/ˈtɜːrmɪnəl/"
+        },
+        {
+            "word": "virtualization",
+            "meaning": "ảo hóa",
+            "word_type": "noun",
+            "example": "Virtualization helps in efficient resource usage.",
+            "ipa": "/ˌvɜːrtʃuələˈzeɪʃən/"
+        },
+        {
+            "word": "container",
+            "meaning": "bộ chứa",
+            "word_type": "noun",
+            "example": "Docker allows you to run apps in containers.",
+            "ipa": "/kənˈteɪnər/"
+        },
+        {
+            "word": "cloud",
+            "meaning": "điện toán đám mây",
+            "word_type": "noun",
+            "example": "Many companies are migrating to the cloud.",
+            "ipa": "/klaʊd/"
+        },
+        {
+            "word": "script",
+            "meaning": "kịch bản lệnh",
+            "word_type": "noun",
+            "example": "I wrote a Python script to automate the task.",
+            "ipa": "/skrɪpt/"
+        },
+        {
+            "word": "binary",
+            "meaning": "nhị phân",
+            "word_type": "adjective",
+            "example": "Computers process data in binary form.",
+            "ipa": "/ˈbaɪnəri/"
+        }
+    ],
+    "Internet Slang & Pop Culture": [
+        {
+            "word": "meme",
+            "meaning": "ảnh/video hài hước trên mạng",
+            "word_type": "noun",
+            "example": "That cat meme is so funny.",
+            "ipa": "/miːm/"
+        },
+        {
+            "word": "troll",
+            "meaning": "chơi khăm, kẻ khiêu khích",
+            "word_type": "verb",
+            "example": "Don't feed the trolls in the comment section.",
+            "ipa": "/troʊl/"
+        },
+        {
+            "word": "viral",
+            "meaning": "lan truyền nhanh",
+            "word_type": "adjective",
+            "example": "The video went viral overnight.",
+            "ipa": "/ˈvaɪrəl/"
+        },
+        {
+            "word": "stream",
+            "meaning": "phát sóng trực tiếp",
+            "word_type": "verb",
+            "example": "He streams video games on Twitch.",
+            "ipa": "/striːm/"
+        },
+        {
+            "word": "chat",
+            "meaning": "trò chuyện trực tuyến",
+            "word_type": "noun",
+            "example": "Read the messages in the live chat.",
+            "ipa": "/tʃæt/"
+        },
+        {
+            "word": "follower",
+            "meaning": "người theo dõi",
+            "word_type": "noun",
+            "example": "She has over a million followers on Instagram.",
+            "ipa": "/ˈfɑːloʊər/"
+        },
+        {
+            "word": "subscribe",
+            "meaning": "đăng ký kênh",
+            "word_type": "verb",
+            "example": "Don't forget to like and subscribe!",
+            "ipa": "/səbˈskraɪb/"
+        },
+        {
+            "word": "influencer",
+            "meaning": "người có sức ảnh hưởng",
+            "word_type": "noun",
+            "example": "Brands often hire influencers for marketing.",
+            "ipa": "/ˈɪnfluənsər/"
+        },
+        {
+            "word": "hashtag",
+            "meaning": "thẻ băm",
+            "word_type": "noun",
+            "example": "Use this hashtag to join the conversation.",
+            "ipa": "/ˈhæʃtæɡ/"
+        },
+        {
+            "word": "trending",
+            "meaning": "đang thịnh hành",
+            "word_type": "adjective",
+            "example": "This topic is currently trending on Twitter.",
+            "ipa": "/ˈtrɛndɪŋ/"
+        },
+        {
+            "word": "cringe",
+            "meaning": "ngại ngùng, xấu hổ giùm",
+            "word_type": "adjective",
+            "example": "That joke was so cringe.",
+            "ipa": "/krɪndʒ/"
+        },
+        {
+            "word": "savage",
+            "meaning": "cực gắt, ngầu",
+            "word_type": "adjective",
+            "example": "His reply was absolutely savage.",
+            "ipa": "/ˈsævɪdʒ/"
+        },
+        {
+            "word": "lit",
+            "meaning": "tuyệt vời, bùng nổ",
+            "word_type": "adjective",
+            "example": "The party last night was lit!",
+            "ipa": "/lɪt/"
+        },
+        {
+            "word": "ghosting",
+            "meaning": "bơ tin nhắn, phớt lờ",
+            "word_type": "noun",
+            "example": "He started ghosting me after the first date.",
+            "ipa": "/ˈɡoʊstɪŋ/"
+        },
+        {
+            "word": "simp",
+            "meaning": "kẻ lụy tình",
+            "word_type": "noun",
+            "example": "He is such a simp for her.",
+            "ipa": "/sɪmp/"
+        },
+        {
+            "word": "flex",
+            "meaning": "khoe khoang",
+            "word_type": "verb",
+            "example": "No need to flex your new watch.",
+            "ipa": "/flɛks/"
+        },
+        {
+            "word": "salty",
+            "meaning": "tức tối, cay cú",
+            "word_type": "adjective",
+            "example": "Why are you so salty about losing the game?",
+            "ipa": "/ˈsɔːlti/"
+        },
+        {
+            "word": "sus",
+            "meaning": "đáng ngờ (từ Among Us)",
+            "word_type": "adjective",
+            "example": "That guy acting over there is very sus.",
+            "ipa": "/sʌs/"
+        },
+        {
+            "word": "goat",
+            "meaning": "xuất sắc nhất mọi thời đại",
+            "word_type": "noun",
+            "example": "Messi is considered the GOAT of football.",
+            "ipa": "/ɡoʊt/"
+        },
+        {
+            "word": "stan",
+            "meaning": "fan cuồng",
+            "word_type": "noun",
+            "example": "I stan that K-pop group.",
+            "ipa": "/stæn/"
+        },
+        {
+            "word": "tea",
+            "meaning": "drama, tin đồn",
+            "word_type": "noun",
+            "example": "Spill the tea! What happened yesterday?",
+            "ipa": "/tiː/"
+        },
+        {
+            "word": "cap",
+            "meaning": "lời nói dối",
+            "word_type": "noun",
+            "example": "No cap, that was the best movie ever.",
+            "ipa": "/kæp/"
+        },
+        {
+            "word": "woke",
+            "meaning": "thức tỉnh, nhận thức xã hội",
+            "word_type": "adjective",
+            "example": "Stay woke about social issues.",
+            "ipa": "/woʊk/"
+        },
+        {
+            "word": "vibes",
+            "meaning": "cảm giác, bầu không khí",
+            "word_type": "noun",
+            "example": "This cafe has really good vibes.",
+            "ipa": "/vaɪbz/"
+        },
+        {
+            "word": "mood",
+            "meaning": "tâm trạng, cảm giác đồng cảm",
+            "word_type": "noun",
+            "example": "Sleeping all day is a big mood.",
+            "ipa": "/muːd/"
+        },
+        {
+            "word": "drip",
+            "meaning": "phong cách ăn mặc chất",
+            "word_type": "noun",
+            "example": "Look at his drip, very stylish.",
+            "ipa": "/drɪp/"
+        },
+        {
+            "word": "bruh",
+            "meaning": "trời ơi (thể hiện sự cạn lời)",
+            "word_type": "other",
+            "example": "Bruh, you really did that?",
+            "ipa": "/brʌ/"
+        },
+        {
+            "word": "afk",
+            "meaning": "treo máy (Away From Keyboard)",
+            "word_type": "other",
+            "example": "I'll be AFK for 5 minutes.",
+            "ipa": "/ˌeɪ ɛf ˈkeɪ/"
+        },
+        {
+            "word": "noob",
+            "meaning": "người mới chơi, gà mờ",
+            "word_type": "noun",
+            "example": "Stop acting like a noob in this game.",
+            "ipa": "/nuːb/"
+        },
+        {
+            "word": "op",
+            "meaning": "quá mạnh (Overpowered)",
+            "word_type": "adjective",
+            "example": "That character is completely OP.",
+            "ipa": "/ˌoʊ ˈpiː/"
+        },
+        {
+            "word": "nerf",
+            "meaning": "giảm sức mạnh",
+            "word_type": "verb",
+            "example": "The developers need to nerf that weapon.",
+            "ipa": "/nɜːrf/"
+        },
+        {
+            "word": "buff",
+            "meaning": "tăng sức mạnh",
+            "word_type": "verb",
+            "example": "My favorite hero got a buff in the recent patch.",
+            "ipa": "/bʌf/"
+        },
+        {
+            "word": "grind",
+            "meaning": "cày cuốc (game, công việc)",
+            "word_type": "verb",
+            "example": "I have to grind all night to level up.",
+            "ipa": "/ɡraɪnd/"
+        },
+        {
+            "word": "loot",
+            "meaning": "nhặt đồ, chiến lợi phẩm",
+            "word_type": "noun",
+            "example": "We got some amazing loot from that boss.",
+            "ipa": "/luːt/"
+        },
+        {
+            "word": "manga",
+            "meaning": "truyện tranh Nhật Bản",
+            "word_type": "noun",
+            "example": "He reads manga every night.",
+            "ipa": "/ˈmæŋɡə/"
+        },
+        {
+            "word": "anime",
+            "meaning": "hoạt hình Nhật Bản",
+            "word_type": "noun",
+            "example": "Naruto is a very famous anime.",
+            "ipa": "/ˈænɪmeɪ/"
+        },
+        {
+            "word": "cosplay",
+            "meaning": "hóa trang",
+            "word_type": "noun",
+            "example": "She makes her own cosplay costumes.",
+            "ipa": "/ˈkɑːzpleɪ/"
+        },
+        {
+            "word": "otaku",
+            "meaning": "người đam mê anime/manga",
+            "word_type": "noun",
+            "example": "He considers himself a hardcore otaku.",
+            "ipa": "/oʊˈtɑːkuː/"
+        },
+        {
+            "word": "waifu",
+            "meaning": "vợ 2D (nhân vật nữ yêu thích)",
+            "word_type": "noun",
+            "example": "Who is your favorite anime waifu?",
+            "ipa": "/ˈwaɪfuː/"
+        },
+        {
+            "word": "husbando",
+            "meaning": "chồng 2D (nhân vật nam yêu thích)",
+            "word_type": "noun",
+            "example": "He is the ultimate husbando.",
+            "ipa": "/hʌzˈbændoʊ/"
+        },
+        {
+            "word": "canon",
+            "meaning": "chính thức (trong cốt truyện)",
+            "word_type": "adjective",
+            "example": "That event is canon in the manga.",
+            "ipa": "/ˈkænən/"
+        },
+        {
+            "word": "filler",
+            "meaning": "tập phụ (không có trong truyện gốc)",
+            "word_type": "noun",
+            "example": "I usually skip the filler episodes.",
+            "ipa": "/ˈfɪlər/"
+        },
+        {
+            "word": "shipping",
+            "meaning": "ghép đôi nhân vật",
+            "word_type": "noun",
+            "example": "Shipping those two characters is very popular.",
+            "ipa": "/ˈʃɪpɪŋ/"
+        },
+        {
+            "word": "hype",
+            "meaning": "sự phấn khích tột độ",
+            "word_type": "noun",
+            "example": "The hype for the new season is real.",
+            "ipa": "/haɪp/"
+        },
+        {
+            "word": "spoiler",
+            "meaning": "tiết lộ nội dung",
+            "word_type": "noun",
+            "example": "Warning: spoilers ahead!",
+            "ipa": "/ˈspɔɪlər/"
+        },
+        {
+            "word": "reboot",
+            "meaning": "khởi động lại một series",
+            "word_type": "noun",
+            "example": "They are making a reboot of the classic show.",
+            "ipa": "/ˈriːbuːt/"
+        },
+        {
+            "word": "banger",
+            "meaning": "một bài hát cực hay",
+            "word_type": "noun",
+            "example": "This new song is an absolute banger.",
+            "ipa": "/ˈbæŋər/"
+        },
+        {
+            "word": "fomo",
+            "meaning": "nỗi sợ bị bỏ lỡ",
+            "word_type": "noun",
+            "example": "I went to the party because of FOMO.",
+            "ipa": "/ˈfoʊmoʊ/"
+        },
+        {
+            "word": "yolo",
+            "meaning": "bạn chỉ sống một lần",
+            "word_type": "other",
+            "example": "I bought the expensive ticket, YOLO!",
+            "ipa": "/ˈjoʊloʊ/"
+        },
+        {
+            "word": "tl;dr",
+            "meaning": "quá dài; chưa đọc",
+            "word_type": "other",
+            "example": "TL;DR: The event was cancelled due to rain.",
+            "ipa": "/ˌtiː ɛl diː ˈɑːr/"
+        }
+    ]
+}

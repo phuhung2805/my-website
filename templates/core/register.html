@@ -1,0 +1,158 @@
+{% extends "core/base.html" %}
+
+{% block title %}Đăng Ký Tài Khoản{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto my-8 sm:my-12 animate-slide-up">
+    <!-- Card Container -->
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-fuchsia-600 to-brand-600 px-6 py-8 text-center text-white relative">
+            <!-- Decorative circle -->
+            <div class="absolute top-0 left-0 w-24 h-24 bg-white/10 rounded-full -translate-x-8 -translate-y-8 blur-lg"></div>
+            
+            <div class="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
+                <i class="fas fa-user-plus text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-bold tracking-tight">Tạo tài khoản mới</h1>
+            <p class="text-brand-100 text-sm mt-1">Cùng học tiếng Anh hiệu quả hơn mỗi ngày</p>
+        </div>
+
+        <!-- Form Body -->
+        <form method="POST" id="registerForm" class="p-6 sm:p-8 space-y-4">
+            {% csrf_token %}
+
+            <!-- Error Messages -->
+            {% if form.errors or error %}
+            <div class="bg-red-50 border border-red-200 rounded-xl p-4 animate-fade-in">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-circle-exclamation text-red-500 mt-0.5 flex-shrink-0"></i>
+                    <div class="text-sm text-red-600 font-medium">
+                        {% if error %}
+                            {{ error }}
+                        {% else %}
+                            <ul class="list-disc pl-4 space-y-1">
+                                {% for field, errors in form.errors.items %}
+                                    {% for err in errors %}
+                                        <li><strong>{{ field|capfirst }}:</strong> {{ err }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Username Input -->
+            <div>
+                <label for="id_username" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    Tên đăng nhập
+                </label>
+                <div class="relative rounded-xl shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-user text-sm"></i>
+                    </div>
+                    <input type="text" 
+                           name="username" 
+                           id="id_username" 
+                           placeholder="Nhập tên đăng nhập viết liền không dấu" 
+                           value="{{ form.username.value|default:'' }}"
+                           class="block w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-slate-700 text-sm placeholder-slate-400
+                                  focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
+                           required>
+                </div>
+            </div>
+
+            <!-- Password Input -->
+            <div>
+                <label for="id_password" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    Mật khẩu
+                </label>
+                <div class="relative rounded-xl shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-key text-sm"></i>
+                    </div>
+                    <input type="password" 
+                           name="password" 
+                           id="id_password" 
+                           placeholder="Mật khẩu tối thiểu 6 ký tự" 
+                           class="block w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-slate-700 text-sm placeholder-slate-400
+                                  focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
+                           required
+                           minlength="6">
+                </div>
+            </div>
+
+            <!-- Confirm Password Input -->
+            <div>
+                <label for="id_password_confirm" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    Xác nhận mật khẩu
+                </label>
+                <div class="relative rounded-xl shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fas fa-circle-check text-sm"></i>
+                    </div>
+                    <input type="password" 
+                           name="password_confirm" 
+                           id="id_password_confirm" 
+                           placeholder="Nhập lại mật khẩu phía trên" 
+                           class="block w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-slate-700 text-sm placeholder-slate-400
+                                  focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 transition-all"
+                           required>
+                </div>
+                <p id="password-match-error" class="hidden text-red-500 text-xs mt-1">
+                    <i class="fas fa-exclamation-circle mr-1"></i> Mật khẩu xác nhận không trùng khớp.
+                </p>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" 
+                    class="w-full py-3.5 bg-gradient-to-r from-fuchsia-600 to-brand-600 text-white font-bold text-base
+                           rounded-xl shadow-md hover:shadow-lg hover:from-fuchsia-700 hover:to-brand-700
+                           active:scale-[0.98] transition-all duration-200 touch-manipulation
+                           flex items-center justify-center gap-2">
+                <i class="fas fa-user-plus"></i>
+                Đăng Ký Tài Khoản
+            </button>
+        </form>
+
+        <!-- Footer link -->
+        <div class="bg-slate-50 border-t border-slate-100 py-5 text-center">
+            <p class="text-sm text-slate-500">
+                Đã có tài khoản? 
+                <a href="{% url 'login' %}" class="font-bold text-brand-600 hover:text-brand-700 transition-colors">Đăng nhập ngay</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Client-side confirmation validation
+    const form = document.getElementById('registerForm');
+    const p1 = document.getElementById('id_password');
+    const p2 = document.getElementById('id_password_confirm');
+    const errorMsg = document.getElementById('password-match-error');
+
+    form.addEventListener('submit', function(e) {
+        if (p1.value !== p2.value) {
+            e.preventDefault();
+            errorMsg.classList.remove('hidden');
+            p2.classList.add('border-red-400', 'focus:border-red-500');
+        } else {
+            errorMsg.classList.add('hidden');
+            p2.classList.remove('border-red-400', 'focus:border-red-500');
+        }
+    });
+
+    p2.addEventListener('input', function() {
+        if (p1.value === p2.value) {
+            errorMsg.classList.add('hidden');
+            p2.classList.remove('border-red-400', 'focus:border-red-500');
+        }
+    });
+</script>
+{% endblock %}

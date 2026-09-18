@@ -1,0 +1,449 @@
+{% load static %}{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="vi" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ prompt.title }} – IELTS Speaking Test</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50:  '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#10b981', /* emerald-500 */
+                            600: '#059669', /* emerald-600 */
+                            700: '#047857', /* emerald-700 */
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Pulse animations for recording state */
+        @keyframes pulse-red {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.08); opacity: 0.8; }
+        }
+        .recording-pulse {
+            animation: pulse-red 1.5s infinite ease-in-out;
+        }
+
+        /* Soundwave animation bar classes */
+        .bar {
+            width: 3px;
+            height: 4px;
+            background-color: #10b981;
+            border-radius: 9999px;
+            transition: height 0.1s ease;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-50 h-full flex flex-col">
+
+    <!-- 1. STICKY TOP TOOLBAR -->
+    <header class="bg-slate-900 text-white h-16 px-4 sm:px-6 flex items-center justify-between border-b border-slate-800 z-30 flex-shrink-0">
+        <div class="flex items-center gap-3">
+            <span class="bg-emerald-500 text-slate-900 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider">IELTS Speaking</span>
+            <h1 class="font-bold text-sm sm:text-base truncate max-w-[200px] sm:max-w-xs md:max-w-md lg:max-w-lg text-slate-100">
+                {{ prompt.title }}
+            </h1>
+        </div>
+
+        <div>
+            <a href="{% url 'dashboard' %}"
+               class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm rounded-xl transition-all border border-slate-700 flex items-center gap-1.5">
+                <i class="fas fa-arrow-left"></i> Quay lại Dashboard
+            </a>
+        </div>
+    </header>
+
+    <!-- 2. MAIN WORKSPACE -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+
+        <!-- LEFT PANEL: IELTS Cue Card (50% Width) -->
+        <section class="w-full md:w-[50%] h-1/2 md:h-full bg-stone-50 border-r border-slate-200 overflow-y-auto px-6 sm:px-10 py-8 select-text">
+            <div class="max-w-xl mx-auto space-y-6">
+                <!-- Card Label -->
+                <div class="inline-flex items-center bg-stone-200/60 text-stone-700 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider">
+                    IELTS Cue Card (Speaking Part 2)
+                </div>
+
+                <!-- IELTS Cue Card Layout -->
+                <div class="bg-white rounded-3xl border-2 border-stone-200 shadow-xl p-8 relative overflow-hidden font-serif">
+                    <div class="absolute right-0 top-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl"></div>
+                    
+                    <!-- Cue Card Header -->
+                    <div class="border-b border-stone-100 pb-4 mb-6">
+                        <h2 class="text-xl sm:text-2xl font-black text-stone-800 leading-tight">
+                            Candidate Task Card
+                        </h2>
+                        <p class="text-xs text-stone-400 font-sans italic mt-1">
+                            You will have to talk about the topic for 1 to 2 minutes. You have 1 minute to think and take notes.
+                        </p>
+                    </div>
+
+                    <!-- Prompt Text Content (IELTS layout) -->
+                    <div class="space-y-6 text-stone-700 leading-relaxed text-sm sm:text-base">
+                        <p class="font-bold text-stone-800 text-base sm:text-lg italic">
+                            {{ prompt.prompt_text|linebreaks }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL: Speaking Recording Engine & Dynamic Results (50% Width) -->
+        <section class="w-full md:w-[50%] h-1/2 md:h-full bg-white overflow-y-auto px-6 sm:px-10 py-8 flex flex-col justify-center">
+            <div class="max-w-md mx-auto w-full space-y-8" id="speaking-app-container">
+
+                <!-- MAIN WORKSPACE: Recording controls -->
+                <div id="recording-stage" class="space-y-6 text-center animate-fade-in">
+                    
+                    <!-- Soundwave Visualizer Panel -->
+                    <div class="bg-slate-900 rounded-3xl p-6 h-36 flex flex-col justify-center items-center relative overflow-hidden border border-slate-800 shadow-inner">
+                        
+                        <!-- Pulse Ring for visual feedback -->
+                        <div id="pulse-indicator" class="absolute w-20 h-20 bg-emerald-500/10 rounded-full scale-0 transition-transform duration-300"></div>
+
+                        <!-- Status text inside visualizer -->
+                        <p id="visualizer-status" class="text-slate-400 font-bold text-xs uppercase tracking-widest z-10 mb-4 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-slate-500" id="status-dot"></span>
+                            Trình ghi âm sẵn sàng
+                        </p>
+
+                        <!-- Static Soundwave mockup/dynamic audio indicators -->
+                        <div class="flex items-end gap-1.5 h-8 z-10" id="bars-container">
+                            <div class="bar h-2"></div>
+                            <div class="bar h-3"></div>
+                            <div class="bar h-1"></div>
+                            <div class="bar h-4"></div>
+                            <div class="bar h-6"></div>
+                            <div class="bar h-3"></div>
+                            <div class="bar h-5"></div>
+                            <div class="bar h-2"></div>
+                            <div class="bar h-4"></div>
+                            <div class="bar h-1"></div>
+                        </div>
+
+                        <!-- Real-time Recording Timer -->
+                        <span id="recording-timer" class="text-white text-lg font-mono font-bold tracking-widest mt-3 z-10 hidden">00:00</span>
+                    </div>
+
+                    <!-- Guidelines -->
+                    <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+                        Hãy đảm bảo rằng thiết bị ghi âm (Microphone) của bạn hoạt động bình thường trước khi bấm nút ghi âm.
+                    </p>
+
+                    <!-- Interactive controls button -->
+                    <div class="flex flex-col items-center gap-4 justify-center">
+                        
+                        <!-- Large Recording Circular Button -->
+                        <button id="btn-record" 
+                                class="w-20 h-20 rounded-full bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white flex items-center justify-center shadow-lg transition-all focus:outline-none relative group border-4 border-white ring-4 ring-emerald-500/10">
+                            <i id="record-icon" class="fas fa-microphone text-2xl"></i>
+                        </button>
+                        
+                        <p id="record-btn-label" class="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                            Bấm để bắt đầu Nói
+                        </p>
+
+                        <!-- Secondary Playback Controls (Disabled initially) -->
+                        <div id="playback-controls" class="hidden flex-col items-center gap-3 w-full max-w-xs pt-4 border-t border-slate-100">
+                            <p class="text-xs font-bold text-slate-400">Xem lại bài nói của bạn:</p>
+                            
+                            <!-- Hidden HTML Audio Element to play recording -->
+                            <audio id="audio-playback" controls class="w-full accent-emerald-500 focus:outline-none h-9"></audio>
+
+                            <!-- AJAX Submission Button -->
+                            <button id="btn-submit" 
+                                    class="w-full mt-2 py-3 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-slate-900 font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
+                                <i class="fas fa-paper-plane"></i> Nộp bài nói lên AI chấm điểm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LOADING STAGE: Dynamic grading states -->
+                <div id="loading-stage" class="hidden space-y-6 text-center animate-pulse">
+                    <div class="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                    <div class="space-y-2">
+                        <h3 class="text-base font-bold text-slate-800">Đang tải và chấm bài nói...</h3>
+                        <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
+                            Mô hình AI đang thẩm định bài thu âm, phát âm, tính mạch lạc và vốn từ vựng của bạn. Quá trình này diễn ra trong vài giây...
+                        </p>
+                    </div>
+                </div>
+
+                <!-- RESULTS STAGE: Glorious grade metrics -->
+                <div id="result-stage" class="hidden space-y-6">
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 shadow-xl border border-slate-700 relative overflow-hidden">
+                        <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl"></div>
+                        <div class="relative z-10 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-emerald-500 text-slate-900 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">Kết quả thẩm định</span>
+                                <span class="text-slate-400 text-xs font-semibold">Speaking Uploaded</span>
+                            </div>
+                            
+                            <div class="flex items-end gap-3">
+                                <span id="band-score-text" class="text-5xl font-black text-emerald-400 tracking-tight leading-none">--</span>
+                                <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">IELTS Band Score</span>
+                            </div>
+                            
+                            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed italic">
+                                "Bài nói của bạn đã được tải lên và phân tích thành công. Hệ thống ghi nhận điểm phản xạ lưu trữ vào lịch sử heatmap Dashboard của bạn!"
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 space-y-3">
+                        <h4 class="font-bold text-emerald-800 text-sm flex items-center gap-2">
+                            <i class="fas fa-circle-check"></i> Nộp bài thành công!
+                        </h4>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                            Bạn đã hoàn thành IELTS Speaking Cue Card. Phân tích chi tiết sẽ được tự động đồng bộ hóa trên Bảng điều khiển của bạn. Hãy tiếp tục ôn luyện các chủ đề khác nhé!
+                        </p>
+                    </div>
+
+                    <a href="{% url 'dashboard' %}"
+                       class="block w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm text-center rounded-xl transition-all shadow-md">
+                        <i class="fas fa-arrow-left mr-1.5"></i> Quay lại Dashboard
+                    </a>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MEDIA RECORDER API ENGINE JAVASCRIPT -->
+    <script>
+        (function() {
+            let mediaRecorder = null;
+            let audioChunks = [];
+            let timerInterval = null;
+            let totalSeconds = 0;
+            let audioBlob = null;
+            let isRecording = false;
+
+            const btnRecord = document.getElementById('btn-record');
+            const recordIcon = document.getElementById('record-icon');
+            const recordLabel = document.getElementById('record-btn-label');
+            const visualizerStatus = document.getElementById('visualizer-status');
+            const statusDot = document.getElementById('status-dot');
+            const pulseIndicator = document.getElementById('pulse-indicator');
+            const timerEl = document.getElementById('recording-timer');
+            const playbackControls = document.getElementById('playback-controls');
+            const audioPlayback = document.getElementById('audio-playback');
+            const btnSubmit = document.getElementById('btn-submit');
+            const bars = document.querySelectorAll('.bar');
+
+            // Stages
+            const recordingStage = document.getElementById('recording-stage');
+            const loadingStage = document.getElementById('loading-stage');
+            const resultStage = document.getElementById('result-stage');
+            const bandScoreText = document.getElementById('band-score-text');
+
+            // CSRF Token Helper
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            // Soundwave animation loop
+            let animId = null;
+            function startSoundwaveMockup() {
+                function animate() {
+                    if (!isRecording) return;
+                    bars.forEach(bar => {
+                        const randomHeight = Math.floor(Math.random() * 24) + 4;
+                        bar.style.height = `${randomHeight}px`;
+                    });
+                    animId = setTimeout(animate, 100);
+                }
+                animate();
+            }
+
+            function stopSoundwaveMockup() {
+                clearTimeout(animId);
+                bars.forEach(bar => {
+                    bar.style.height = '4px';
+                });
+            }
+
+            // Start timer
+            function startTimer() {
+                totalSeconds = 0;
+                timerEl.classList.remove('hidden');
+                timerEl.textContent = '00:00';
+                timerInterval = setInterval(() => {
+                    totalSeconds++;
+                    const minutes = Math.floor(totalSeconds / 60);
+                    const seconds = totalSeconds % 60;
+                    timerEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    
+                    // Stop automatically at 2 minutes
+                    if (totalSeconds >= 120) {
+                        toggleRecording();
+                    }
+                }, 1000);
+            }
+
+            // Stop timer
+            function stopTimer() {
+                clearInterval(timerInterval);
+            }
+
+            // Toggle Recording State
+            async function toggleRecording() {
+                if (!isRecording) {
+                    // Start Recording request
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        mediaRecorder = new MediaRecorder(stream);
+                        audioChunks = [];
+
+                        mediaRecorder.addEventListener('dataavailable', event => {
+                            audioChunks.push(event.data);
+                        });
+
+                        mediaRecorder.addEventListener('stop', () => {
+                            audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                            const audioUrl = URL.createObjectURL(audioBlob);
+                            audioPlayback.src = audioUrl;
+
+                            // Display playback panel
+                            playbackControls.classList.remove('hidden');
+                        });
+
+                        mediaRecorder.start();
+                        isRecording = true;
+
+                        // UI Visual feedback
+                        btnRecord.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+                        btnRecord.classList.add('bg-red-500', 'hover:bg-red-600', 'recording-pulse');
+                        recordIcon.className = 'fas fa-square text-2xl';
+                        recordLabel.textContent = 'Bấm để dừng ghi âm';
+                        
+                        visualizerStatus.textContent = 'ĐANG THU ÂM BÀI NÓI';
+                        visualizerStatus.classList.replace('text-slate-400', 'text-red-400');
+                        statusDot.classList.replace('bg-slate-500', 'bg-red-500 animate-pulse');
+                        pulseIndicator.classList.add('scale-100');
+
+                        // Start auxiliary animations
+                        startSoundwaveMockup();
+                        startTimer();
+
+                    } catch (err) {
+                        alert("Không thể truy cập Micro của bạn. Vui lòng cấp quyền Microphone để làm bài nói.");
+                        console.error(err);
+                    }
+                } else {
+                    // Stop Recording
+                    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                        mediaRecorder.stop();
+                        // Stop tracks of stream
+                        mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                    }
+
+                    isRecording = false;
+                    btnRecord.classList.remove('bg-red-500', 'hover:bg-red-600', 'recording-pulse');
+                    btnRecord.classList.add('bg-emerald-500', 'hover:bg-emerald-600');
+                    recordIcon.className = 'fas fa-microphone text-2xl';
+                    recordLabel.textContent = 'Bấm để ghi âm lại';
+
+                    visualizerStatus.textContent = 'ĐÃ GHI ÂM XONG';
+                    visualizerStatus.classList.replace('text-red-400', 'text-emerald-400');
+                    statusDot.classList.replace('bg-red-500', 'bg-emerald-500');
+                    statusDot.classList.remove('animate-pulse');
+                    pulseIndicator.classList.remove('scale-100');
+
+                    stopSoundwaveMockup();
+                    stopTimer();
+                }
+            }
+
+            btnRecord.addEventListener('click', toggleRecording);
+
+            // AJAX POST Upload speaking file
+            btnSubmit.addEventListener('click', async () => {
+                if (!audioBlob) {
+                    alert("Không tìm thấy tệp ghi âm của bạn.");
+                    return;
+                }
+
+                // Show loading
+                recordingStage.classList.add('hidden');
+                loadingStage.classList.remove('hidden');
+
+                // Package audio into form-data
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'speaking_sample.webm');
+
+                try {
+                    const csrftoken = getCookie('csrftoken');
+                    const response = await fetch('', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': csrftoken
+                        },
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Nộp file nói bị thất bại ở phía máy chủ.');
+                    }
+
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        // Render results stage
+                        loadingStage.classList.add('hidden');
+                        resultStage.classList.remove('hidden');
+                        bandScoreText.textContent = data.band.toFixed(1);
+                    } else {
+                        throw new Error(data.error || 'Lỗi không xác định.');
+                    }
+
+                } catch (err) {
+                    alert("Có lỗi xảy ra: " + err.message);
+                    loadingStage.classList.add('hidden');
+                    recordingStage.classList.remove('hidden');
+                }
+            });
+
+        })();
+    </script>
+
+</body>
+</html>
