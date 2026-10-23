@@ -1,0 +1,310 @@
+{% extends "core/base.html" %}
+
+{% block title %}Bài Kiểm Tra Đầu Vào (Placement Test) – English Pro{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6 sm:space-y-8 animate-slide-up pb-20">
+
+    <!-- 1. HERO HEADER -->
+    <div class="bg-gradient-to-br from-brand-700 via-brand-600 to-indigo-800 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl">
+        <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute right-10 top-4 w-28 h-28 bg-accent-400/20 rounded-full blur-xl pointer-events-none"></div>
+
+        <div class="relative z-10 space-y-3">
+            <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase border border-white/20">
+                <i class="fas fa-clipboard-check text-amber-300"></i>
+                <span>Placement Test · Đánh giá năng lực</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+                Kiểm Tra Trình Độ Tiếng Anh Đầu Vào
+            </h1>
+            <p class="text-brand-100 text-sm sm:text-base leading-relaxed max-w-2xl">
+                Bài kiểm tra gồm các câu hỏi từ cấp độ <strong class="text-white">A1 đến B2</strong> giúp hệ thống xác định chính xác năng lực hiện tại của bạn và cá nhân hóa lộ trình học từ vựng phù hợp nhất.
+            </p>
+
+            <div class="pt-2 flex flex-wrap items-center gap-3 sm:gap-6 text-xs text-brand-100 font-medium">
+                <span class="flex items-center gap-1.5 bg-brand-800/40 px-3 py-1.5 rounded-lg border border-white/10">
+                    <i class="far fa-clock text-amber-300"></i> Khoảng 10-15 phút
+                </span>
+                <span class="flex items-center gap-1.5 bg-brand-800/40 px-3 py-1.5 rounded-lg border border-white/10">
+                    <i class="fas fa-list-ol text-emerald-300"></i> {{ total_questions }} câu trắc nghiệm
+                </span>
+                <span class="flex items-center gap-1.5 bg-brand-800/40 px-3 py-1.5 rounded-lg border border-white/10">
+                    <i class="fas fa-award text-amber-300"></i> Xếp hạng CEFR: A1 · A2 · B1 · B2
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. STICKY PROGRESS BAR & STATS -->
+    <div id="sticky-progress" class="sticky top-16 z-30 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl p-4 shadow-md transition-all">
+        <div class="flex items-center justify-between gap-4 mb-2">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-brand-600 animate-pulse"></span>
+                <span class="text-xs sm:text-sm font-bold text-slate-700">Tiến độ làm bài</span>
+            </div>
+            <span class="text-xs sm:text-sm font-black text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-100">
+                <span id="answered-count">0</span> / {{ total_questions }} câu
+            </span>
+        </div>
+        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+            <div id="progress-bar-fill" class="bg-gradient-to-r from-brand-600 to-accent-500 h-2.5 rounded-full transition-all duration-300 ease-out" style="width: 0%;"></div>
+        </div>
+    </div>
+
+    {% if total_questions == 0 %}
+    <!-- EMPTY STATE -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-10 text-center space-y-4 shadow-sm">
+        <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800">Chưa có câu hỏi kiểm tra đầu vào</h3>
+        <p class="text-sm text-slate-500 max-w-md mx-auto">
+            Hệ thống đang cập nhật bộ câu hỏi mới. Vui lòng quay lại sau hoặc liên hệ giảng viên/quản trị viên để thêm câu hỏi trong trang Admin.
+        </p>
+        <a href="{% url 'dashboard' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 text-white font-bold text-sm rounded-xl hover:bg-brand-700 transition-all shadow-md">
+            <i class="fas fa-arrow-left"></i> Về Bảng điều khiển
+        </a>
+    </div>
+    {% else %}
+
+    <!-- 3. TEST QUESTIONS FORM -->
+    <form id="placementForm" method="POST" action="{% url 'placement_test' %}" novalidate class="space-y-6">
+        {% csrf_token %}
+
+        {% for q in questions %}
+        <div id="question-card-{{ q.id }}" class="question-card bg-white rounded-2xl sm:rounded-3xl border-2 border-slate-200/80 p-5 sm:p-7 shadow-sm transition-all duration-200 hover:border-brand-200" data-question-id="{{ q.id }}">
+            
+            <!-- Question Header -->
+            <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-brand-600 text-white text-xs sm:text-sm font-extrabold flex items-center justify-center shadow-sm">
+                        {{ forloop.counter }}
+                    </span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        Câu hỏi {{ forloop.counter }} / {{ total_questions }}
+                    </span>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide
+                    {% if q.level == 'A1' %}bg-emerald-50 text-emerald-700 border border-emerald-200
+                    {% elif q.level == 'A2' %}bg-sky-50 text-sky-700 border border-sky-200
+                    {% elif q.level == 'B1' %}bg-indigo-50 text-indigo-700 border border-indigo-200
+                    {% else %}bg-amber-50 text-amber-700 border border-amber-200{% endif %}">
+                    Level {{ q.level }}
+                </span>
+            </div>
+
+            <!-- Question Text -->
+            <h2 class="text-base sm:text-lg font-bold text-slate-800 leading-snug mb-5">
+                {{ q.question_text }}
+            </h2>
+
+            <!-- Choices Radio List -->
+            <div class="space-y-2.5 sm:space-y-3">
+                {% for choice in q.choices.all %}
+                <label class="choice-item flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-brand-300 hover:bg-slate-50/70 cursor-pointer transition-all duration-150 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50/70 has-[:checked]:shadow-sm group select-none">
+                    <input type="radio" 
+                           name="question_{{ q.id }}" 
+                           value="{{ choice.id }}" 
+                           class="hidden test-choice-radio"
+                           data-question-id="{{ q.id }}">
+                    
+                    <!-- Custom Radio Circle -->
+                    <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-slate-300 group-hover:border-brand-400 flex items-center justify-center flex-shrink-0 group-has-[:checked]:border-brand-600 group-has-[:checked]:bg-brand-600 transition-colors">
+                        <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white opacity-0 group-has-[:checked]:opacity-100 transition-opacity"></span>
+                    </span>
+
+                    <!-- Choice Text -->
+                    <span class="text-sm sm:text-base text-slate-700 group-has-[:checked]:text-brand-900 group-has-[:checked]:font-semibold transition-colors flex-1 leading-relaxed">
+                        {{ choice.choice_text }}
+                    </span>
+                </label>
+                {% empty %}
+                <p class="text-xs text-slate-400 italic">Chưa có lựa chọn nào cho câu hỏi này.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Question Validation Notice (Hidden by default) -->
+            <div id="warning-{{ q.id }}" class="hidden mt-3 text-xs text-red-500 font-semibold flex items-center gap-1.5 animate-fade-in">
+                <i class="fas fa-exclamation-circle"></i> Vui lòng chọn một đáp án cho câu hỏi này trước khi nộp bài.
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- 4. SUBMIT SECTION -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-md text-center space-y-4">
+            <h3 class="text-lg font-bold text-slate-800">Bạn đã sẵn sàng hoàn thành bài kiểm tra?</h3>
+            <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
+                Sau khi nhấn nút nộp bài, hệ thống sẽ tự động chấm điểm bài làm của bạn và xếp hạng cấp độ tương ứng.
+            </p>
+            <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button type="button" 
+                        id="checkAndSubmitBtn" 
+                        class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white font-extrabold text-sm sm:text-base rounded-2xl shadow-lg hover:shadow-brand-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-paper-plane"></i> Hoàn thành & Chấm điểm
+                </button>
+            </div>
+        </div>
+
+    </form>
+    {% endif %}
+
+</div>
+
+<!-- 5. UNANSWERED CONFIRMATION MODAL -->
+<div id="unansweredModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-slide-up border border-slate-100">
+        <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-2xl">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="text-center space-y-2">
+            <h3 class="text-lg sm:text-xl font-black text-slate-800">Còn câu hỏi chưa trả lời!</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                Bạn vẫn còn <strong id="modalUnansweredCount" class="text-red-600 font-bold">0</strong> câu hỏi chưa chọn đáp án. Bạn có muốn quay lại hoàn thành không?
+            </p>
+        </div>
+        <div class="flex flex-col gap-2.5 pt-2">
+            <button type="button" 
+                    id="modalReviewBtn"
+                    class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5">
+                <i class="fas fa-arrow-up"></i> Quay lại câu chưa làm
+            </button>
+            <button type="button" 
+                    id="modalForceSubmitBtn"
+                    class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs sm:text-sm rounded-xl transition-all">
+                Vẫn nộp bài ngay
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const totalQuestions = {{ total_questions|default:0 }};
+    const form = document.getElementById('placementForm');
+    const radios = document.querySelectorAll('.test-choice-radio');
+    const answeredCountEl = document.getElementById('answered-count');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+    const checkAndSubmitBtn = document.getElementById('checkAndSubmitBtn');
+    
+    // Modal elements
+    const unansweredModal = document.getElementById('unansweredModal');
+    const modalUnansweredCount = document.getElementById('modalUnansweredCount');
+    const modalReviewBtn = document.getElementById('modalReviewBtn');
+    const modalForceSubmitBtn = document.getElementById('modalForceSubmitBtn');
+
+    if (!form || totalQuestions === 0) return;
+
+    // Track answered questions set
+    function getAnsweredQuestionIds() {
+        const answeredIds = new Set();
+        radios.forEach(radio => {
+            if (radio.checked) {
+                answeredIds.add(radio.getAttribute('data-question-id'));
+            }
+        });
+        return answeredIds;
+    }
+
+    // Update real-time progress bar
+    function updateProgress() {
+        const answeredIds = getAnsweredQuestionIds();
+        const count = answeredIds.size;
+        answeredCountEl.textContent = count;
+        
+        const pct = Math.round((count / totalQuestions) * 100);
+        progressBarFill.style.width = pct + '%';
+    }
+
+    // Listen to radio clicks
+    radios.forEach(radio => {
+        radio.addEventListener('change', function () {
+            const qId = this.getAttribute('data-question-id');
+            const card = document.getElementById('question-card-' + qId);
+            const warning = document.getElementById('warning-' + qId);
+            
+            if (card) {
+                card.classList.remove('border-red-400', 'bg-red-50/20');
+                card.classList.add('border-emerald-300');
+            }
+            if (warning) {
+                warning.classList.add('hidden');
+            }
+            updateProgress();
+        });
+    });
+
+    // Check validation on Submit
+    function validateForm() {
+        const answeredIds = getAnsweredQuestionIds();
+        const questionCards = document.querySelectorAll('.question-card');
+        const unansweredCards = [];
+
+        questionCards.forEach(card => {
+            const qId = card.getAttribute('data-question-id');
+            const warning = document.getElementById('warning-' + qId);
+            if (!answeredIds.has(qId)) {
+                unansweredCards.push(card);
+                card.classList.add('border-red-400', 'bg-red-50/20');
+                if (warning) warning.classList.remove('hidden');
+            } else {
+                card.classList.remove('border-red-400', 'bg-red-50/20');
+                if (warning) warning.classList.add('hidden');
+            }
+        });
+
+        return unansweredCards;
+    }
+
+    if (checkAndSubmitBtn) {
+        checkAndSubmitBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const unanswered = validateForm();
+
+            if (unanswered.length === 0) {
+                // All answered -> Submit form
+                checkAndSubmitBtn.disabled = true;
+                checkAndSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang chấm điểm...';
+                form.submit();
+            } else {
+                // Show modal warning
+                modalUnansweredCount.textContent = unanswered.length;
+                unansweredModal.classList.remove('hidden');
+            }
+        });
+    }
+
+    // Modal Actions
+    if (modalReviewBtn) {
+        modalReviewBtn.addEventListener('click', function () {
+            unansweredModal.classList.add('hidden');
+            const unanswered = validateForm();
+            if (unanswered.length > 0) {
+                unanswered[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+
+    if (modalForceSubmitBtn) {
+        modalForceSubmitBtn.addEventListener('click', function () {
+            unansweredModal.classList.add('hidden');
+            checkAndSubmitBtn.disabled = true;
+            checkAndSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang chấm điểm...';
+            form.submit();
+        });
+    }
+
+    // Close modal on click backdrop
+    unansweredModal.addEventListener('click', function (e) {
+        if (e.target === unansweredModal) {
+            unansweredModal.classList.add('hidden');
+        }
+    });
+
+    // Initial progress computation
+    updateProgress();
+});
+</script>
+{% endblock %}

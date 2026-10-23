@@ -14,6 +14,7 @@ LEVEL_CHOICES = [
     ("A1", "A1"),
     ("A2", "A2"),
     ("B1", "B1"),
+    ("B2", "B2"),
 ]
 
 
@@ -244,6 +245,17 @@ class UserProfile(models.Model):
     target_reading = models.FloatField(default=0.0, verbose_name="Mục tiêu Đọc (Reading)")
     target_writing = models.FloatField(default=0.0, verbose_name="Mục tiêu Viết (Writing)")
     exam_date = models.DateField(null=True, blank=True, verbose_name="Ngày thi dự kiến")
+    assigned_level = models.CharField(
+        max_length=2,
+        choices=LEVEL_CHOICES,
+        default="A1",
+        blank=True,
+        verbose_name="Trình độ đầu vào",
+    )
+    has_taken_placement_test = models.BooleanField(
+        default=False,
+        verbose_name="Đã làm bài test đầu vào",
+    )
 
     class Meta:
         verbose_name = "Thông tin học viên"
@@ -522,3 +534,159 @@ class VocabularyQuestion(models.Model):
 
     def __str__(self):
         return f"Q: {self.question_text[:50]} ({self.level})"
+
+
+# ===========================================================================
+# PLACEMENT TEST (BÀI KIỂM TRA ĐẦU VÀO) MODELS
+# ===========================================================================
+
+class PlacementQuestion(models.Model):
+    """Câu hỏi kiểm tra trình độ đầu vào (Placement Test)."""
+
+    question_text = models.CharField(max_length=500, verbose_name="Nội dung câu hỏi")
+    level = models.CharField(
+        max_length=2,
+        choices=LEVEL_CHOICES,
+        default="A1",
+        verbose_name="Độ khó",
+    )
+    order = models.PositiveIntegerField(default=0, verbose_name="Thứ tự sắp xếp")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
+
+    class Meta:
+        verbose_name = "Câu hỏi test đầu vào"
+        verbose_name_plural = "Câu hỏi test đầu vào"
+        ordering = ["order", "id"]
+
+    def __str__(self):
+        return f"[{self.level}] #{self.order}: {self.question_text[:50]}"
+
+
+class PlacementChoice(models.Model):
+    """Lựa chọn đáp án cho câu hỏi Placement Test."""
+
+    question = models.ForeignKey(
+        PlacementQuestion,
+        on_delete=models.CASCADE,
+        related_name="choices",
+        verbose_name="Câu hỏi",
+    )
+    choice_text = models.CharField(max_length=255, verbose_name="Nội dung lựa chọn")
+    is_correct = models.BooleanField(default=False, verbose_name="Đáp án đúng")
+
+    class Meta:
+        verbose_name = "Lựa chọn đáp án"
+        verbose_name_plural = "Lựa chọn đáp án"
+
+    def __str__(self):
+        return f"{self.choice_text} {'(Đúng)' if self.is_correct else ''}"
+
+
+class PlacementTestResult(models.Model):
+    """Kết quả bài kiểm tra đầu vào của học viên."""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="placement_results",
+        null=True,
+        blank=True,
+        verbose_name="Học viên",
+    )
+    score = models.IntegerField(default=0, verbose_name="Số câu đúng")
+    total_questions = models.IntegerField(default=0, verbose_name="Tổng số câu")
+    assigned_level = models.CharField(
+        max_length=2,
+        choices=LEVEL_CHOICES,
+        default="A1",
+        verbose_name="Trình độ xếp hạng",
+    )
+    answers_detail = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name="Chi tiết câu trả lời",
+    )
+    completed_at = models.DateTimeField(auto_now_add=True, verbose_name="Thời gian hoàn thành")
+
+    class Meta:
+        verbose_name = "Kết quả kiểm tra đầu vào"
+        verbose_name_plural = "Kết quả kiểm tra đầu vào"
+        ordering = ["-completed_at"]
+
+    def __str__(self):
+        username = self.user.username if self.user else "Khách"
+        return f"{username} - {self.score}/{self.total_questions} ({self.assigned_level}) - {self.completed_at.strftime('%d/%m/%Y')}"
+
+    @property
+    def percentage(self):
+        if self.total_questions > 0:
+            return round((self.score / self.total_questions) * 100, 1)
+        return 0.0
+
+
+# ===========================================================================
+# LEVEL-UP EXAM (BÀI THI NÂNG BAND) MODELS
+# ===========================================================================
+
+NEXT_LEVEL_MAP = {
+    "A1": "A2",
+    "A2": "B1",
+    "B1": "B2",
+}
+
+
+def get_next_level(current_level: str):
+    """
+    Xác định cấp độ tiếp theo theo quy tắc CEFR:
+    A1 -> A2, A2 -> B1, B1 -> B2.
+    Nếu đang ở B2 hoặc không hợp lệ, trả về None.
+    """
+    return NEXT_LEVEL_MAP.get(current_level)
+
+
+class LevelUpExamResult(models.Model):
+    """Lịch sử kết quả bài thi nâng band (Level-Up Exam) của học viên."""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="levelup_results",
+        verbose_name="Học viên",
+    )
+    from_level = models.CharField(
+        max_length=2,
+        choices=LEVEL_CHOICES,
+        verbose_name="Cấp độ ban đầu",
+    )
+    target_level = models.CharField(
+        max_length=2,
+        choices=LEVEL_CHOICES,
+        verbose_name="Cấp độ mục tiêu",
+    )
+    score = models.IntegerField(default=0, verbose_name="Số câu đúng")
+    total_questions = models.IntegerField(default=0, verbose_name="Tổng số câu")
+    is_passed = models.BooleanField(default=False, verbose_name="Kết quả Đạt")
+    answers_detail = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name="Chi tiết câu trả lời",
+    )
+    completed_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Thời gian hoàn thành",
+    )
+
+    class Meta:
+        verbose_name = "Kết quả thi nâng band"
+        verbose_name_plural = "Kết quả thi nâng band"
+        ordering = ["-completed_at"]
+
+    def __str__(self):
+        status = "Đạt" if self.is_passed else "Không đạt"
+        return f"{self.user.username} - {self.from_level} -> {self.target_level}: {self.score}/{self.total_questions} ({status}) - {self.completed_at.strftime('%d/%m/%Y')}"
+
+    @property
+    def percentage(self):
+        if self.total_questions > 0:
+            return round((self.score / self.total_questions) * 100, 1)
+        return 0.0

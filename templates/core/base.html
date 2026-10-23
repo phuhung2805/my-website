@@ -123,6 +123,14 @@
                        class="nav-link px-4 py-2 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/15 transition-all {% block nav_home %}{% endblock %}">
                         <i class="fas fa-clone mr-1.5"></i>Học Flashcard
                     </a>
+                    <a href="{% url 'placement_test' %}"
+                       class="nav-link px-4 py-2 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/15 transition-all {% block nav_placement %}{% endblock %}">
+                        <i class="fas fa-clipboard-check mr-1.5"></i>Test đầu vào
+                    </a>
+                    <a href="{% url 'level_up_exam' %}"
+                       class="nav-link px-4 py-2 rounded-lg text-sm font-medium text-white/80 hover:text-white hover:bg-white/15 transition-all {% block nav_levelup %}{% endblock %}">
+                        <i class="fas fa-rocket mr-1.5 text-amber-300"></i>Thi nâng band
+                    </a>
                     {% endif %}
                 </div>
 
@@ -135,6 +143,7 @@
                             <a href="/course/a1/" class="px-3 py-1 rounded-lg text-xs font-extrabold transition-all {% if active_level == 'A1' or not active_level %}bg-amber-400 text-brand-900 shadow-sm{% else %}text-white/70 hover:text-white hover:bg-white/5{% endif %}">A1</a>
                             <a href="/course/a2/" class="px-3 py-1 rounded-lg text-xs font-extrabold transition-all {% if active_level == 'A2' %}bg-amber-400 text-brand-900 shadow-sm{% else %}text-white/70 hover:text-white hover:bg-white/5{% endif %}">A2</a>
                             <a href="/course/b1/" class="px-3 py-1 rounded-lg text-xs font-extrabold transition-all {% if active_level == 'B1' %}bg-amber-400 text-brand-900 shadow-sm{% else %}text-white/70 hover:text-white hover:bg-white/5{% endif %}">B1</a>
+                            <a href="/course/b2/" class="px-3 py-1 rounded-lg text-xs font-extrabold transition-all {% if active_level == 'B2' %}bg-amber-400 text-brand-900 shadow-sm{% else %}text-white/70 hover:text-white hover:bg-white/5{% endif %}">B2</a>
                         </div>
                         <span class="text-white/90 text-sm font-medium">
                             Chào, <span class="text-amber-300 font-extrabold">{{ request.user.username }}</span>! 👋
@@ -174,6 +183,7 @@
                             <a href="/course/a1/" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all {% if active_level == 'A1' or not active_level %}bg-amber-400 text-brand-900{% else %}text-white/70{% endif %}">A1</a>
                             <a href="/course/a2/" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all {% if active_level == 'A2' %}bg-amber-400 text-brand-900{% else %}text-white/70{% endif %}">A2</a>
                             <a href="/course/b1/" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all {% if active_level == 'B1' %}bg-amber-400 text-brand-900{% else %}text-white/70{% endif %}">B1</a>
+                            <a href="/course/b2/" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all {% if active_level == 'B2' %}bg-amber-400 text-brand-900{% else %}text-white/70{% endif %}">B2</a>
                         </div>
                     </div>
                     
@@ -186,6 +196,16 @@
                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:text-white hover:bg-white/15 transition-all font-medium {% block mob_nav_home %}{% endblock %}">
                         <i class="fas fa-clone w-5 text-center"></i>
                         <span>Học Flashcard</span>
+                    </a>
+                    <a href="{% url 'placement_test' %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:text-white hover:bg-white/15 transition-all font-medium {% block mob_nav_placement %}{% endblock %}">
+                        <i class="fas fa-clipboard-check w-5 text-center"></i>
+                        <span>Test đầu vào</span>
+                    </a>
+                    <a href="{% url 'level_up_exam' %}"
+                       class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:text-white hover:bg-white/15 transition-all font-medium {% block mob_nav_levelup %}{% endblock %}">
+                        <i class="fas fa-rocket w-5 text-center text-amber-300"></i>
+                        <span>Thi nâng band</span>
                     </a>
                     <a href="{% url 'logout' %}"
                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-200 hover:text-white hover:bg-red-500/20 transition-all font-medium font-medium">

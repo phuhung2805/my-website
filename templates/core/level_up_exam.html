@@ -1,0 +1,416 @@
+{% extends "core/base.html" %}
+
+{% block title %}Bài Thi Nâng Band (Level-Up Exam) – English Pro{% endblock %}
+{% block nav_levelup %}nav-active{% endblock %}
+{% block mob_nav_levelup %}nav-active{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6 sm:space-y-8 animate-slide-up pb-20">
+
+    {% if is_max_level %}
+    <!-- MAX LEVEL REACHED BANNER -->
+    <div class="bg-gradient-to-br from-amber-500 via-orange-600 to-amber-700 rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-2xl text-center space-y-6">
+        <div class="absolute -right-12 -bottom-12 w-52 h-52 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-12 -top-12 w-52 h-52 bg-yellow-300/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="relative z-10 space-y-4 max-w-lg mx-auto">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto text-4xl sm:text-5xl shadow-inner border border-white/30 animate-bounce">
+                👑
+            </div>
+
+            <div class="inline-flex items-center gap-2 bg-white/20 px-4 py-1.5 rounded-full text-xs font-black tracking-wider uppercase border border-white/30 shadow-sm">
+                <i class="fas fa-crown text-amber-200"></i>
+                <span>Cấp độ cao nhất trong hệ thống</span>
+            </div>
+
+            <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                Bạn Đã Đạt Cấp Độ B2 (Upper Intermediate)!
+            </h1>
+
+            <p class="text-amber-100 text-sm sm:text-base leading-relaxed">
+                Xin chúc mừng! Bạn hiện đang ở cấp độ cao nhất trong hệ thống phân loại CEFR của English Pro. Bạn không cần thi nâng band nữa. Hãy tiếp tục luyện các đề thi chuyên sâu 4 kỹ năng (IELTS 6.5 - 7.5+) và duy trì vốn từ vựng học thuật đỉnh cao!
+            </p>
+
+            <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a href="{% url 'index' %}?level=B2" class="w-full sm:w-auto px-6 py-3.5 bg-white text-orange-700 hover:bg-orange-50 font-extrabold text-sm rounded-2xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-book-open"></i> Luyện từ vựng B2
+                </a>
+                <a href="{% url 'dashboard' %}" class="w-full sm:w-auto px-6 py-3.5 bg-amber-800/60 hover:bg-amber-800/80 text-white font-bold text-sm rounded-2xl border border-white/20 transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-chart-line"></i> Về Bảng điều khiển
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% elif total_questions == 0 %}
+    <!-- EMPTY STATE -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-10 text-center space-y-4 shadow-sm">
+        <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800">Chưa có câu hỏi thi nâng band cho cấp độ {{ target_level }}</h3>
+        <p class="text-sm text-slate-500 max-w-md mx-auto">
+            Hệ thống đang chuẩn bị bộ câu hỏi mới cho cấp độ này. Vui lòng quay lại sau hoặc liên hệ quản trị viên.
+        </p>
+        <a href="{% url 'dashboard' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 text-white font-bold text-sm rounded-xl hover:bg-brand-700 transition-all shadow-md">
+            <i class="fas fa-arrow-left"></i> Về Bảng điều khiển
+        </a>
+    </div>
+
+    {% else %}
+
+    <!-- 1. HERO HEADER -->
+    <div class="bg-gradient-to-br from-indigo-700 via-brand-600 to-purple-800 rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl">
+        <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute right-10 top-4 w-28 h-28 bg-amber-400/20 rounded-full blur-xl pointer-events-none"></div>
+
+        <div class="relative z-10 space-y-3">
+            <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-bold tracking-wider uppercase border border-white/20">
+                <i class="fas fa-rocket text-amber-300"></i>
+                <span>Level-Up Exam · Thử Thách Nâng Band</span>
+            </div>
+
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight">
+                Thi Nâng Band: Từ <span class="text-amber-300">{{ current_level }}</span> lên <span class="text-emerald-300">{{ target_level }}</span>
+            </h1>
+
+            <p class="text-brand-100 text-sm sm:text-base leading-relaxed max-w-2xl">
+                Bài thi gồm <strong class="text-white">{{ total_questions }} câu hỏi</strong> thuộc cấp độ <strong class="text-white">{{ target_level }}</strong>. Bạn cần đạt từ <strong class="text-amber-300">80% điểm số</strong> trở lên để được hệ thống tự động thăng hạng lên cấp độ <strong class="text-white">{{ target_level }}</strong>.
+            </p>
+
+            <div class="pt-2 flex flex-wrap items-center gap-3 sm:gap-6 text-xs text-brand-100 font-medium">
+                <span class="flex items-center gap-1.5 bg-brand-800/40 px-3 py-1.5 rounded-lg border border-white/10">
+                    <i class="far fa-clock text-amber-300"></i> Thời gian làm bài: 10 phút
+                </span>
+                <span class="flex items-center gap-1.5 bg-brand-800/40 px-3 py-1.5 rounded-lg border border-white/10">
+                    <i class="fas fa-check-double text-emerald-300"></i> Điều kiện Đạt: ≥ 80% đúng
+                </span>
+                <span class="flex items-center gap-1.5 bg-brand-800/40 px-3 py-1.5 rounded-lg border border-white/10">
+                    <i class="fas fa-trophy text-amber-300"></i> Mục tiêu: Lên Level {{ target_level }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. STICKY TOP BAR: COUNTDOWN TIMER & PROGRESS BAR -->
+    <div id="sticky-header" class="sticky top-16 z-30 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl p-4 shadow-md transition-all">
+        <div class="flex items-center justify-between gap-4 mb-2.5">
+            <!-- Countdown Timer -->
+            <div id="timerContainer" class="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 transition-colors">
+                <i id="timerIcon" class="far fa-clock text-brand-600 text-sm animate-pulse"></i>
+                <span class="text-xs font-semibold text-slate-500 hidden sm:inline">Còn lại:</span>
+                <span id="countdownDisplay" class="text-sm sm:text-base font-black text-slate-800 tracking-wider font-mono">10:00</span>
+            </div>
+
+            <!-- Answered Counter -->
+            <div class="flex items-center gap-2">
+                <span class="text-xs sm:text-sm font-bold text-slate-500 hidden sm:inline">Tiến độ:</span>
+                <span class="text-xs sm:text-sm font-black text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-100">
+                    <span id="answered-count">0</span> / {{ total_questions }} câu
+                </span>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+            <div id="progress-bar-fill" class="bg-gradient-to-r from-brand-600 to-emerald-500 h-2.5 rounded-full transition-all duration-300 ease-out" style="width: 0%;"></div>
+        </div>
+    </div>
+
+    <!-- 3. EXAM QUESTIONS FORM -->
+    <form id="levelUpForm" method="POST" action="{% url 'level_up_exam' %}" novalidate class="space-y-6">
+        {% csrf_token %}
+
+        {% for q in questions %}
+        <div id="question-card-{{ q.id }}" class="question-card bg-white rounded-2xl sm:rounded-3xl border-2 border-slate-200/80 p-5 sm:p-7 shadow-sm transition-all duration-200 hover:border-brand-200" data-question-id="{{ q.id }}">
+            
+            <!-- Question Header -->
+            <div class="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-brand-600 text-white text-xs sm:text-sm font-extrabold flex items-center justify-center shadow-sm">
+                        {{ forloop.counter }}
+                    </span>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        Câu hỏi {{ forloop.counter }} / {{ total_questions }}
+                    </span>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide
+                    {% if q.level == 'A1' %}bg-emerald-50 text-emerald-700 border border-emerald-200
+                    {% elif q.level == 'A2' %}bg-sky-50 text-sky-700 border border-sky-200
+                    {% elif q.level == 'B1' %}bg-indigo-50 text-indigo-700 border border-indigo-200
+                    {% else %}bg-amber-50 text-amber-700 border border-amber-200{% endif %}">
+                    Level {{ q.level }}
+                </span>
+            </div>
+
+            <!-- Question Text -->
+            <h2 class="text-base sm:text-lg font-bold text-slate-800 leading-snug mb-5">
+                {{ q.question_text }}
+            </h2>
+
+            <!-- Choices Radio List -->
+            <div class="space-y-2.5 sm:space-y-3">
+                {% for choice in q.choices.all %}
+                <label class="choice-item flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-brand-300 hover:bg-slate-50/70 cursor-pointer transition-all duration-150 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50/70 has-[:checked]:shadow-sm group select-none">
+                    <input type="radio" 
+                           name="question_{{ q.id }}" 
+                           value="{{ choice.id }}" 
+                           class="hidden exam-choice-radio"
+                           data-question-id="{{ q.id }}">
+                    
+                    <!-- Custom Radio Circle -->
+                    <span class="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-slate-300 group-hover:border-brand-400 flex items-center justify-center flex-shrink-0 group-has-[:checked]:border-brand-600 group-has-[:checked]:bg-brand-600 transition-colors">
+                        <span class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white opacity-0 group-has-[:checked]:opacity-100 transition-opacity"></span>
+                    </span>
+
+                    <!-- Choice Text -->
+                    <span class="text-sm sm:text-base text-slate-700 group-has-[:checked]:text-brand-900 group-has-[:checked]:font-semibold transition-colors flex-1 leading-relaxed">
+                        {{ choice.choice_text }}
+                    </span>
+                </label>
+                {% empty %}
+                <p class="text-xs text-slate-400 italic">Chưa có lựa chọn nào cho câu hỏi này.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Question Warning Notice (Hidden by default) -->
+            <div id="warning-{{ q.id }}" class="hidden mt-3 text-xs text-red-500 font-semibold flex items-center gap-1.5 animate-fade-in">
+                <i class="fas fa-exclamation-circle"></i> Vui lòng chọn đáp án trước khi nộp bài.
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- 4. SUBMIT SECTION -->
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-md text-center space-y-4">
+            <h3 class="text-lg font-bold text-slate-800">Sẵn sàng hoàn thành bài thi nâng band?</h3>
+            <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto">
+                Sau khi nhấn nút nộp bài, hệ thống sẽ tự động chấm điểm. Nếu đạt từ 80% trở lên, bạn sẽ được tự động nâng cấp độ lên <strong class="text-brand-600">{{ target_level }}</strong>!
+            </p>
+            <div class="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button type="button" 
+                        id="checkAndSubmitBtn" 
+                        class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-brand-600 to-indigo-700 hover:from-brand-700 hover:to-indigo-800 text-white font-extrabold text-sm sm:text-base rounded-2xl shadow-lg hover:shadow-brand-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-paper-plane"></i> Nộp Bài & Nhận Kết Quả
+                </button>
+            </div>
+        </div>
+
+    </form>
+    {% endif %}
+
+</div>
+
+<!-- 5. UNANSWERED WARNING MODAL -->
+<div id="unansweredModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-5 animate-slide-up border border-slate-100">
+        <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-2xl">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="text-center space-y-2">
+            <h3 class="text-lg sm:text-xl font-black text-slate-800">Còn câu hỏi chưa trả lời!</h3>
+            <p class="text-sm text-slate-600 leading-relaxed">
+                Bạn vẫn còn <strong id="modalUnansweredCount" class="text-red-600 font-bold">0</strong> câu hỏi chưa chọn đáp án. Bạn có muốn quay lại hoàn thành để đạt cơ hội đậu cao nhất không?
+            </p>
+        </div>
+        <div class="flex flex-col gap-2.5 pt-2">
+            <button type="button" 
+                    id="modalReviewBtn" 
+                    class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5">
+                <i class="fas fa-arrow-up"></i> Quay lại làm tiếp
+            </button>
+            <button type="button" 
+                    id="modalForceSubmitBtn" 
+                    class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs sm:text-sm rounded-xl transition-all">
+                Vẫn nộp bài ngay
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const totalQuestions = {{ total_questions|default:0 }};
+    const form = document.getElementById('levelUpForm');
+    if (!form || totalQuestions === 0) return;
+
+    const radios = document.querySelectorAll('.exam-choice-radio');
+    const answeredCountEl = document.getElementById('answered-count');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+    const checkAndSubmitBtn = document.getElementById('checkAndSubmitBtn');
+
+    // Countdown Timer Elements
+    const countdownDisplay = document.getElementById('countdownDisplay');
+    const timerContainer = document.getElementById('timerContainer');
+    const timerIcon = document.getElementById('timerIcon');
+
+    // Modal elements
+    const unansweredModal = document.getElementById('unansweredModal');
+    const modalUnansweredCount = document.getElementById('modalUnansweredCount');
+    const modalReviewBtn = document.getElementById('modalReviewBtn');
+    const modalForceSubmitBtn = document.getElementById('modalForceSubmitBtn');
+
+    let isSubmitted = false;
+
+    // --- 1. COUNTDOWN TIMER (10 MINUTES = 600 SECONDS) ---
+    const TOTAL_SECONDS = 10 * 60;
+    let secondsRemaining = TOTAL_SECONDS;
+
+    function formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    const timerInterval = setInterval(function () {
+        if (isSubmitted) {
+            clearInterval(timerInterval);
+            return;
+        }
+
+        secondsRemaining--;
+        if (countdownDisplay) {
+            countdownDisplay.textContent = formatTime(secondsRemaining);
+        }
+
+        // Cảnh báo khi còn dưới 1 phút (60 giây)
+        if (secondsRemaining <= 60 && secondsRemaining > 0) {
+            if (timerContainer) {
+                timerContainer.classList.remove('bg-slate-100', 'border-slate-200');
+                timerContainer.classList.add('bg-red-50', 'border-red-300', 'animate-pulse');
+            }
+            if (countdownDisplay) {
+                countdownDisplay.classList.remove('text-slate-800');
+                countdownDisplay.classList.add('text-red-600');
+            }
+            if (timerIcon) {
+                timerIcon.classList.remove('text-brand-600');
+                timerIcon.classList.add('text-red-500');
+            }
+        }
+
+        // Khi hết giờ: Tự động submit bài thi
+        if (secondsRemaining <= 0) {
+            clearInterval(timerInterval);
+            isSubmitted = true;
+            if (unansweredModal) unansweredModal.classList.add('hidden');
+            if (checkAndSubmitBtn) {
+                checkAndSubmitBtn.disabled = true;
+                checkAndSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Hết giờ! Đang tự động nộp bài...';
+            }
+            form.submit();
+        }
+    }, 1000);
+
+    // --- 2. PROGRESS BAR & ANSWER TRACKING ---
+    function getAnsweredQuestionIds() {
+        const answeredIds = new Set();
+        radios.forEach(radio => {
+            if (radio.checked) {
+                answeredIds.add(radio.getAttribute('data-question-id'));
+            }
+        });
+        return answeredIds;
+    }
+
+    function updateProgress() {
+        const answeredIds = getAnsweredQuestionIds();
+        const count = answeredIds.size;
+        if (answeredCountEl) answeredCountEl.textContent = count;
+        
+        const pct = Math.round((count / totalQuestions) * 100);
+        if (progressBarFill) progressBarFill.style.width = pct + '%';
+    }
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', function () {
+            const qId = this.getAttribute('data-question-id');
+            const card = document.getElementById('question-card-' + qId);
+            const warning = document.getElementById('warning-' + qId);
+            
+            if (card) {
+                card.classList.remove('border-red-400', 'bg-red-50/20');
+                card.classList.add('border-emerald-300');
+            }
+            if (warning) {
+                warning.classList.add('hidden');
+            }
+            updateProgress();
+        });
+    });
+
+    // --- 3. FORM VALIDATION & SUBMIT ---
+    function validateForm() {
+        const answeredIds = getAnsweredQuestionIds();
+        const questionCards = document.querySelectorAll('.question-card');
+        const unansweredCards = [];
+
+        questionCards.forEach(card => {
+            const qId = card.getAttribute('data-question-id');
+            const warning = document.getElementById('warning-' + qId);
+            if (!answeredIds.has(qId)) {
+                unansweredCards.push(card);
+                card.classList.add('border-red-400', 'bg-red-50/20');
+                if (warning) warning.classList.remove('hidden');
+            } else {
+                card.classList.remove('border-red-400', 'bg-red-50/20');
+                if (warning) warning.classList.add('hidden');
+            }
+        });
+
+        return unansweredCards;
+    }
+
+    if (checkAndSubmitBtn) {
+        checkAndSubmitBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const unanswered = validateForm();
+
+            if (unanswered.length === 0) {
+                isSubmitted = true;
+                clearInterval(timerInterval);
+                checkAndSubmitBtn.disabled = true;
+                checkAndSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang chấm điểm bài thi...';
+                form.submit();
+            } else {
+                modalUnansweredCount.textContent = unanswered.length;
+                unansweredModal.classList.remove('hidden');
+            }
+        });
+    }
+
+    // Modal Events
+    if (modalReviewBtn) {
+        modalReviewBtn.addEventListener('click', function () {
+            unansweredModal.classList.add('hidden');
+            const unanswered = validateForm();
+            if (unanswered.length > 0) {
+                unanswered[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+
+    if (modalForceSubmitBtn) {
+        modalForceSubmitBtn.addEventListener('click', function () {
+            isSubmitted = true;
+            clearInterval(timerInterval);
+            unansweredModal.classList.add('hidden');
+            checkAndSubmitBtn.disabled = true;
+            checkAndSubmitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang chấm điểm bài thi...';
+            form.submit();
+        });
+    }
+
+    if (unansweredModal) {
+        unansweredModal.addEventListener('click', function (e) {
+            if (e.target === unansweredModal) {
+                unansweredModal.classList.add('hidden');
+            }
+        });
+    }
+
+    updateProgress();
+});
+</script>
+{% endblock %}

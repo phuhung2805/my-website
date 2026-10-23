@@ -1,0 +1,365 @@
+{% extends "core/base.html" %}
+
+{% block title %}Kết Quả Bài Kiểm Tra Đầu Vào – English Pro{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6 sm:space-y-8 animate-slide-up pb-16">
+
+    <!-- 1. CELEBRATION HERO CARD -->
+    <div class="bg-gradient-to-br from-brand-700 via-brand-600 to-indigo-800 rounded-3xl p-6 sm:p-10 text-white relative overflow-hidden shadow-2xl text-center">
+        <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="absolute -left-10 -top-10 w-44 h-44 bg-accent-400/20 rounded-full blur-2xl pointer-events-none"></div>
+
+        <div class="relative z-10 space-y-4 max-w-xl mx-auto">
+            <!-- Animated Trophy / Star Icon -->
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mx-auto text-3xl sm:text-4xl shadow-inner border border-white/30 animate-bounce">
+                🏆
+            </div>
+
+            <div class="inline-flex items-center gap-2 bg-amber-400 text-brand-900 px-4 py-1.5 rounded-full text-xs font-black tracking-wide uppercase shadow-md">
+                <i class="fas fa-sparkles"></i> Hoàn thành bài kiểm tra đầu vào
+            </div>
+
+            <h1 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">
+                Chúc Mừng, <span class="text-amber-300">{{ result.user.username|default:"Học viên" }}</span>!
+            </h1>
+
+            <p class="text-brand-100 text-sm sm:text-base leading-relaxed">
+                Bạn đã hoàn thành bài đánh giá năng lực tiếng Anh. Dưới đây là kết quả phân loại trình độ và lộ trình học tập được thiết kế riêng cho bạn!
+            </p>
+        </div>
+    </div>
+
+    <!-- 1B. AI TUTOR ROADMAP FEEDBACK CARD -->
+    {% if ai_feedback %}
+    <div class="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 rounded-3xl p-6 sm:p-7 text-white shadow-xl border border-purple-500/30 relative overflow-hidden space-y-3">
+        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-purple-500/20 rounded-full blur-2xl pointer-events-none"></div>
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-purple-500/30 text-purple-300 flex items-center justify-center text-sm border border-purple-400/30">
+                    <i class="fas fa-robot text-purple-300"></i>
+                </span>
+                <span class="text-xs font-black uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
+                    ✨ AI Gia Sư · Nhận xét & Lộ trình học
+                </span>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-400/20">
+                {% if ai_feedback.source == 'gemini' %}⚡ Gemini AI{% else %}🤖 AI Gia Sư{% endif %}
+            </span>
+        </div>
+        <p class="text-xs sm:text-sm text-purple-100 leading-relaxed font-normal whitespace-pre-line">
+            {{ ai_feedback.feedback }}
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- 2. MAIN LEVEL BADGE & SCORE CARD -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-md relative overflow-hidden">
+        <div class="flex flex-col md:flex-row items-center gap-6 sm:gap-8">
+            
+            <!-- Big Level Circle Badge -->
+            <div class="flex-shrink-0 flex flex-col items-center justify-center">
+                <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-3xl flex flex-col items-center justify-center shadow-lg border-4 transition-transform hover:scale-105
+                    {% if result.assigned_level == 'A1' %}bg-gradient-to-br from-emerald-500 to-teal-600 border-emerald-300 text-white shadow-emerald-500/25
+                    {% elif result.assigned_level == 'A2' %}bg-gradient-to-br from-sky-500 to-blue-600 border-sky-300 text-white shadow-sky-500/25
+                    {% elif result.assigned_level == 'B1' %}bg-gradient-to-br from-indigo-500 to-purple-600 border-indigo-300 text-white shadow-indigo-500/25
+                    {% else %}bg-gradient-to-br from-amber-500 to-orange-600 border-amber-300 text-white shadow-amber-500/25{% endif %}">
+                    <span class="text-xs font-bold uppercase tracking-widest opacity-80">Trình độ CEFR</span>
+                    <span class="text-5xl sm:text-6xl font-black tracking-tight my-0.5">{{ result.assigned_level }}</span>
+                    <span class="text-[10px] sm:text-xs font-extrabold uppercase px-2.5 py-0.5 bg-white/20 rounded-full">
+                        {% if result.assigned_level == 'A1' %}Beginner
+                        {% elif result.assigned_level == 'A2' %}Elementary
+                        {% elif result.assigned_level == 'B1' %}Intermediate
+                        {% else %}Upper Inter.{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Level Info & Summary -->
+            <div class="flex-1 text-center md:text-left space-y-3">
+                <div class="space-y-1">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Kết quả đánh giá</span>
+                    <h2 class="text-xl sm:text-2xl font-black text-slate-800">
+                        {{ meta.title }}
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                        {{ meta.subtitle }}
+                    </p>
+                </div>
+
+                <!-- Score Stats Bar -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
+                    <div class="bg-slate-50 rounded-2xl p-3 border border-slate-100">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase block">Số câu đúng</span>
+                        <span class="text-xl sm:text-2xl font-black text-brand-600">
+                            {{ result.score }} <span class="text-xs font-medium text-slate-400">/ {{ result.total_questions }}</span>
+                        </span>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-2xl p-3 border border-slate-100">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase block">Độ chính xác</span>
+                        <span class="text-xl sm:text-2xl font-black text-emerald-600">
+                            {{ percentage }}%
+                        </span>
+                    </div>
+
+                    <div class="col-span-2 sm:col-span-1 bg-slate-50 rounded-2xl p-3 border border-slate-100">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase block">Thời gian</span>
+                        <span class="text-xs sm:text-sm font-bold text-slate-700 block mt-1">
+                            {{ result.completed_at|date:"d/m/Y H:i" }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="pt-1">
+                    <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-gradient-to-r from-emerald-500 to-brand-600 h-2.5 rounded-full" style="width: {{ percentage }}%;"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- 3. DETAILED EVALUATION & ROADMAP GUIDANCE -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+        <h3 class="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
+            <i class="fas fa-compass text-brand-600"></i>
+            Đánh Giá Năng Lực & Lộ Trình Học Tập Đề Xuất
+        </h3>
+
+        <!-- Description -->
+        <div class="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-100 space-y-2">
+            <span class="text-xs font-extrabold text-brand-700 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fas fa-check-circle"></i> Nhận xét năng lực
+            </span>
+            <p class="text-sm text-slate-700 leading-relaxed font-normal">
+                {{ meta.desc }}
+            </p>
+        </div>
+
+        <!-- Guidance -->
+        <div class="bg-amber-50/60 rounded-2xl p-4 sm:p-5 border border-amber-200/60 space-y-2">
+            <span class="text-xs font-extrabold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fas fa-lightbulb text-amber-500"></i> Lời khuyên & bước tiếp theo
+            </span>
+            <p class="text-sm text-slate-700 leading-relaxed font-normal">
+                {{ meta.guidance }}
+            </p>
+        </div>
+
+        <!-- CTA Action Buttons -->
+        <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <!-- Primary CTA: Go to Vocabulary of this level -->
+            <a href="{% url 'index' %}?level={{ result.assigned_level }}" 
+               class="flex-1 px-6 py-3.5 bg-gradient-to-r from-brand-600 to-brand-700 hover:from-brand-700 hover:to-brand-800 text-white font-extrabold text-sm sm:text-base rounded-2xl shadow-lg hover:shadow-brand-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-center">
+                <i class="fas fa-book-open"></i> {{ meta.action_text }}
+            </a>
+
+            {% if result.assigned_level != 'B2' %}
+            <!-- Level-Up Exam CTA -->
+            <a href="{% url 'level_up_exam' %}" 
+               class="px-5 py-3.5 bg-amber-400 hover:bg-amber-300 text-brand-900 font-extrabold text-sm sm:text-base rounded-2xl shadow-md active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-center">
+                <i class="fas fa-rocket text-brand-700"></i> Thi nâng band
+            </a>
+            {% endif %}
+
+            <!-- Secondary CTA: Dashboard -->
+            <a href="{% url 'dashboard_level' level_code=result.assigned_level|lower %}" 
+               class="px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm sm:text-base rounded-2xl transition-all flex items-center justify-center gap-2 text-center">
+                <i class="fas fa-chart-line text-emerald-600"></i> Bảng điều khiển
+            </a>
+
+            <!-- Retake Test -->
+            <a href="{% url 'placement_test' %}" 
+               class="px-4 py-3.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 font-semibold text-xs sm:text-sm rounded-2xl transition-all flex items-center justify-center gap-1.5 text-center"
+               title="Làm lại bài kiểm tra">
+                <i class="fas fa-rotate-right"></i> Làm lại bài test
+            </a>
+        </div>
+    </div>
+
+    <!-- 4. QUESTION REVIEW ACCORDION (CHI TIẾT ĐÁP ÁN) -->
+    {% if answers_detail %}
+    <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-5">
+        <div class="flex items-center justify-between">
+            <h3 class="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
+                <i class="fas fa-clipboard-list text-slate-600"></i>
+                Chi Tiết Đáp Án Từng Câu ({{ answers_detail|length }} câu)
+            </h3>
+            <button id="toggleReviewBtn" type="button" class="text-xs font-bold text-brand-600 hover:text-brand-800 hover:underline">
+                Thu gọn / Mở rộng
+            </button>
+        </div>
+
+        <div id="reviewContainer" class="space-y-4 pt-2">
+            {% for item in answers_detail %}
+            <div class="rounded-2xl p-4 sm:p-5 border-2 transition-colors
+                {% if item.is_correct %}border-emerald-200 bg-emerald-50/30{% else %}border-red-200 bg-red-50/20{% endif %}">
+                
+                <div class="flex items-center justify-between gap-3 mb-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg text-xs font-extrabold flex items-center justify-center
+                            {% if item.is_correct %}bg-emerald-600 text-white{% else %}bg-red-500 text-white{% endif %}">
+                            {{ forloop.counter }}
+                        </span>
+                        <span class="text-xs font-bold text-slate-400">Câu {{ forloop.counter }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                            Level {{ item.level }}
+                        </span>
+                        {% if item.is_correct %}
+                        <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <i class="fas fa-check"></i> Đúng
+                        </span>
+                        {% else %}
+                        <span class="text-xs font-bold text-red-700 bg-red-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                            <i class="fas fa-xmark"></i> Sai
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <p class="text-sm sm:text-base font-bold text-slate-800 mb-3">
+                    {{ item.question_text }}
+                </p>
+
+                <div class="text-xs sm:text-sm space-y-1.5 pt-1 border-t border-slate-200/60">
+                    <div class="flex items-start gap-2">
+                        <span class="text-slate-400 font-semibold min-w-[110px]">Lựa chọn của bạn:</span>
+                        <span class="font-medium {% if item.is_correct %}text-emerald-700 font-bold{% else %}text-red-600 font-bold line-through{% endif %}">
+                            {{ item.selected_choice_text|default:"(Bỏ trống)" }}
+                        </span>
+                    </div>
+
+                    {% if not item.is_correct %}
+                    <div class="flex items-start gap-2">
+                        <span class="text-slate-400 font-semibold min-w-[110px]">Đáp án đúng:</span>
+                        <span class="font-bold text-emerald-700 flex items-center gap-1">
+                            <i class="fas fa-check-circle text-emerald-600"></i> {{ item.correct_choice_text }}
+                        </span>
+                    </div>
+
+                    <!-- AI Explain Button & Box -->
+                    <div class="pt-2">
+                        <button type="button" 
+                                class="ai-explain-btn inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-purple-500/20 active:scale-95 transition-all"
+                                data-question-id="{{ item.question_id }}"
+                                data-user-choice-id="{{ item.selected_choice_id|default:'' }}"
+                                data-user-answer="{{ item.selected_choice_text|default:'Chưa chọn' }}"
+                                data-correct-answer="{{ item.correct_choice_text }}"
+                                data-question-text="{{ item.question_text }}"
+                                data-level="{{ item.level|default:'A1' }}">
+                            <i class="fas fa-wand-magic-sparkles text-amber-300"></i>
+                            <span>✨ AI Giải thích</span>
+                        </button>
+
+                        <div id="ai-explain-box-{{ item.question_id }}" class="hidden mt-3 p-4 bg-purple-50/80 rounded-2xl border border-purple-200 text-xs sm:text-sm text-slate-700 space-y-2 animate-fade-in shadow-inner">
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% csrf_token %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleBtn = document.getElementById('toggleReviewBtn');
+    const container = document.getElementById('reviewContainer');
+
+    if (toggleBtn && container) {
+        toggleBtn.addEventListener('click', function () {
+            container.classList.toggle('hidden');
+        });
+    }
+
+    // AI Explanation AJAX Handlers
+    document.querySelectorAll('.ai-explain-btn').forEach(btn => {
+        btn.addEventListener('click', async function () {
+            const qId = this.dataset.questionId;
+            const box = document.getElementById('ai-explain-box-' + qId);
+            if (!box) return;
+
+            // Nếu box đã hiển thị và đã có nội dung, toggle ẩn/hiện
+            if (!box.classList.contains('hidden') && box.innerHTML.trim() !== '' && !box.querySelector('.fa-spinner')) {
+                box.classList.toggle('hidden');
+                return;
+            }
+
+            box.classList.remove('hidden');
+            box.innerHTML = `
+                <div class="flex items-center gap-2 text-purple-700 font-bold text-xs py-2">
+                    <i class="fas fa-spinner fa-spin text-sm"></i>
+                    <span>Trợ lý AI đang phân tích lỗi sai và đối chiếu ngữ pháp...</span>
+                </div>
+            `;
+            this.disabled = true;
+
+            try {
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+                const response = await fetch('/api/ai-explain/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify({
+                        question_id: qId,
+                        user_choice_id: this.dataset.userChoiceId,
+                        user_answer: this.dataset.userAnswer,
+                        correct_answer: this.dataset.correctAnswer,
+                        question_text: this.dataset.questionText,
+                        level: this.dataset.level,
+                    }),
+                });
+
+                const data = await response.json();
+                if (data.success && data.explanation) {
+                    const formatted = data.explanation
+                        .replace(/\n\n/g, '<br><br>')
+                        .replace(/\n/g, '<br>')
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+                    box.innerHTML = `
+                        <div class="flex items-center justify-between pb-1.5 border-b border-purple-200/60 mb-2">
+                            <span class="text-[11px] font-black uppercase tracking-wider text-purple-700 flex items-center gap-1.5">
+                                <i class="fas fa-brain text-purple-600"></i> Phân Tích Ngữ Pháp AI
+                            </span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                ${data.source === 'gemini' ? '⚡ Gemini AI' : '🤖 AI Gia Sư'}
+                            </span>
+                        </div>
+                        <div class="leading-relaxed text-slate-700 text-xs sm:text-sm">
+                            ${formatted}
+                        </div>
+                    `;
+                } else {
+                    box.innerHTML = `<p class="text-xs text-red-500 font-semibold">Không thể tải phân tích lúc này. Vui lòng thử lại sau.</p>`;
+                }
+            } catch (err) {
+                box.innerHTML = `
+                    <div class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                        <strong class="text-purple-700 block mb-1">🤖 AI Phân Tích Nhanh:</strong>
+                        Đáp án đúng là <strong>"${this.dataset.correctAnswer}"</strong>. Phương án bạn chọn chưa phù hợp với cấu trúc ngữ pháp câu hỏi cấp độ ${this.dataset.level}. Hãy lưu ý đối chiếu thì động từ và liên từ trong câu.
+                    </div>
+                `;
+            } finally {
+                this.disabled = false;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

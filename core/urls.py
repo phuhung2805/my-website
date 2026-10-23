@@ -18,4 +18,17 @@ urlpatterns = [
     path("speaking/test/<int:prompt_id>/", views.speaking_test_view, name="speaking_test"),
     path("mark-mastered/<int:card_id>/", views.mark_mastered, name="mark_mastered"),
     path("review-flashcard/<int:card_id>/", views.review_flashcard, name="review_flashcard"),
+
+    # Placement Test Routes
+    path("placement-test/", views.placement_test_view, name="placement_test"),
+    path("placement-test/result/", views.placement_result_view, name="placement_result_latest"),
+    path("placement-test/result/<int:result_id>/", views.placement_result_view, name="placement_result"),
+
+    # Level-Up Exam Routes
+    path("level-up-exam/", views.level_up_exam_view, name="level_up_exam"),
+    path("level-up-exam/result/", views.level_up_result_view, name="level_up_result_latest"),
+    path("level-up-exam/result/<int:result_id>/", views.level_up_result_view, name="level_up_result"),
+
+    # AI Tutor Routes
+    path("api/ai-explain/", views.api_ai_explain_view, name="api_ai_explain"),
 ]

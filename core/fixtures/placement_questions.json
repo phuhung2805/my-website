@@ -1,0 +1,692 @@
+[
+{
+  "model": "core.placementquestion",
+  "pk": 1,
+  "fields": {
+    "question_text": "She _______ from Vietnam. She is twenty years old.",
+    "level": "A1",
+    "order": 1,
+    "created_at": "2026-10-02T07:27:32.325Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 2,
+  "fields": {
+    "question_text": "What time _______ you usually wake up in the morning?",
+    "level": "A1",
+    "order": 2,
+    "created_at": "2026-10-02T07:27:32.336Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 3,
+  "fields": {
+    "question_text": "There are four _______ on the table.",
+    "level": "A1",
+    "order": 3,
+    "created_at": "2026-10-02T07:27:32.342Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 4,
+  "fields": {
+    "question_text": "I cannot find my keys. Have you seen _______?",
+    "level": "A1",
+    "order": 4,
+    "created_at": "2026-10-02T07:27:32.347Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 5,
+  "fields": {
+    "question_text": "Yesterday, my family and I _______ a very interesting movie at the cinema.",
+    "level": "A2",
+    "order": 5,
+    "created_at": "2026-10-02T07:27:32.356Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 6,
+  "fields": {
+    "question_text": "Traveling by airplane is much _______ than traveling by train.",
+    "level": "A2",
+    "order": 6,
+    "created_at": "2026-10-02T07:27:32.361Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 7,
+  "fields": {
+    "question_text": "Look at those dark clouds! It _______ rain very soon.",
+    "level": "A2",
+    "order": 7,
+    "created_at": "2026-10-02T07:27:32.367Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 8,
+  "fields": {
+    "question_text": "He was very tired, _______ he still finished all his homework before bed.",
+    "level": "A2",
+    "order": 8,
+    "created_at": "2026-10-02T07:27:32.375Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 9,
+  "fields": {
+    "question_text": "I _______ in this international company for over five years, and I really enjoy it.",
+    "level": "B1",
+    "order": 9,
+    "created_at": "2026-10-02T07:27:32.381Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 10,
+  "fields": {
+    "question_text": "If I _______ more free time, I would participate in the English speaking club.",
+    "level": "B1",
+    "order": 10,
+    "created_at": "2026-10-02T07:27:32.387Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 11,
+  "fields": {
+    "question_text": "The student _______ essay won the first prize will receive a scholarship.",
+    "level": "B1",
+    "order": 11,
+    "created_at": "2026-10-02T07:27:32.394Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 12,
+  "fields": {
+    "question_text": "The historical museum _______ by thousands of tourists every summer.",
+    "level": "B1",
+    "order": 12,
+    "created_at": "2026-10-02T07:27:32.399Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 13,
+  "fields": {
+    "question_text": "If she had followed the doctor's instructions strictly, she _______ sick today.",
+    "level": "B2",
+    "order": 13,
+    "created_at": "2026-10-02T07:27:32.406Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 14,
+  "fields": {
+    "question_text": "Hardly _______ entered the laboratory when the experiment commenced.",
+    "level": "B2",
+    "order": 14,
+    "created_at": "2026-10-02T07:27:32.411Z"
+  }
+},
+{
+  "model": "core.placementquestion",
+  "pk": 15,
+  "fields": {
+    "question_text": "The government has implemented strict measures to _______ carbon dioxide emissions.",
+    "level": "B2",
+    "order": 15,
+    "created_at": "2026-10-02T07:27:32.418Z"
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 1,
+  "fields": {
+    "question": 1,
+    "choice_text": "am",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 2,
+  "fields": {
+    "question": 1,
+    "choice_text": "is",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 3,
+  "fields": {
+    "question": 1,
+    "choice_text": "are",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 4,
+  "fields": {
+    "question": 1,
+    "choice_text": "be",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 5,
+  "fields": {
+    "question": 2,
+    "choice_text": "do",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 6,
+  "fields": {
+    "question": 2,
+    "choice_text": "does",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 7,
+  "fields": {
+    "question": 2,
+    "choice_text": "are",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 8,
+  "fields": {
+    "question": 2,
+    "choice_text": "did",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 9,
+  "fields": {
+    "question": 3,
+    "choice_text": "apple",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 10,
+  "fields": {
+    "question": 3,
+    "choice_text": "apples",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 11,
+  "fields": {
+    "question": 3,
+    "choice_text": "an apple",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 12,
+  "fields": {
+    "question": 3,
+    "choice_text": "appleses",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 13,
+  "fields": {
+    "question": 4,
+    "choice_text": "they",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 14,
+  "fields": {
+    "question": 4,
+    "choice_text": "them",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 15,
+  "fields": {
+    "question": 4,
+    "choice_text": "their",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 16,
+  "fields": {
+    "question": 4,
+    "choice_text": "it",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 17,
+  "fields": {
+    "question": 5,
+    "choice_text": "watch",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 18,
+  "fields": {
+    "question": 5,
+    "choice_text": "watched",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 19,
+  "fields": {
+    "question": 5,
+    "choice_text": "watching",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 20,
+  "fields": {
+    "question": 5,
+    "choice_text": "have watched",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 21,
+  "fields": {
+    "question": 6,
+    "choice_text": "fast",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 22,
+  "fields": {
+    "question": 6,
+    "choice_text": "faster",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 23,
+  "fields": {
+    "question": 6,
+    "choice_text": "more fast",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 24,
+  "fields": {
+    "question": 6,
+    "choice_text": "fastest",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 25,
+  "fields": {
+    "question": 7,
+    "choice_text": "is going to",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 26,
+  "fields": {
+    "question": 7,
+    "choice_text": "will to",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 27,
+  "fields": {
+    "question": 7,
+    "choice_text": "goes to",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 28,
+  "fields": {
+    "question": 7,
+    "choice_text": "is raining",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 29,
+  "fields": {
+    "question": 8,
+    "choice_text": "because",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 30,
+  "fields": {
+    "question": 8,
+    "choice_text": "so",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 31,
+  "fields": {
+    "question": 8,
+    "choice_text": "but",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 32,
+  "fields": {
+    "question": 8,
+    "choice_text": "although",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 33,
+  "fields": {
+    "question": 9,
+    "choice_text": "work",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 34,
+  "fields": {
+    "question": 9,
+    "choice_text": "worked",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 35,
+  "fields": {
+    "question": 9,
+    "choice_text": "have worked",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 36,
+  "fields": {
+    "question": 9,
+    "choice_text": "am working",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 37,
+  "fields": {
+    "question": 10,
+    "choice_text": "have",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 38,
+  "fields": {
+    "question": 10,
+    "choice_text": "had",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 39,
+  "fields": {
+    "question": 10,
+    "choice_text": "will have",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 40,
+  "fields": {
+    "question": 10,
+    "choice_text": "would have",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 41,
+  "fields": {
+    "question": 11,
+    "choice_text": "who",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 42,
+  "fields": {
+    "question": 11,
+    "choice_text": "which",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 43,
+  "fields": {
+    "question": 11,
+    "choice_text": "whose",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 44,
+  "fields": {
+    "question": 11,
+    "choice_text": "whom",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 45,
+  "fields": {
+    "question": 12,
+    "choice_text": "visited",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 46,
+  "fields": {
+    "question": 12,
+    "choice_text": "was visited",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 47,
+  "fields": {
+    "question": 12,
+    "choice_text": "is visited",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 48,
+  "fields": {
+    "question": 12,
+    "choice_text": "is visiting",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 49,
+  "fields": {
+    "question": 13,
+    "choice_text": "wouldn't be",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 50,
+  "fields": {
+    "question": 13,
+    "choice_text": "wouldn't have been",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 51,
+  "fields": {
+    "question": 13,
+    "choice_text": "won't be",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 52,
+  "fields": {
+    "question": 13,
+    "choice_text": "isn't",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 53,
+  "fields": {
+    "question": 14,
+    "choice_text": "the researchers had",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 54,
+  "fields": {
+    "question": 14,
+    "choice_text": "had the researchers",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 55,
+  "fields": {
+    "question": 14,
+    "choice_text": "did the researchers",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 56,
+  "fields": {
+    "question": 14,
+    "choice_text": "have the researchers",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 57,
+  "fields": {
+    "question": 15,
+    "choice_text": "cut down on",
+    "is_correct": true
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 58,
+  "fields": {
+    "question": 15,
+    "choice_text": "put up with",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 59,
+  "fields": {
+    "question": 15,
+    "choice_text": "look down on",
+    "is_correct": false
+  }
+},
+{
+  "model": "core.placementchoice",
+  "pk": 60,
+  "fields": {
+    "question": 15,
+    "choice_text": "carry away with",
+    "is_correct": false
+  }
+}
+]

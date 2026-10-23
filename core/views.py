@@ -28,7 +28,14 @@ from django.views.decorators.http import require_POST
 from .models import (
     Category, Flashcard, QuizResult, Vocabulary, VocabSet,
     UserProfile, ReadingPassage, ListeningTrack, WritingTask,
-    SpeakingPrompt, UserSubmission
+    SpeakingPrompt, UserSubmission,
+    PlacementQuestion, PlacementChoice, PlacementTestResult,
+    LevelUpExamResult, get_next_level
+)
+from .ai_service import (
+    get_ai_explanation,
+    get_ai_roadmap_feedback,
+    generate_rule_based_explanation,
 )
 
 
@@ -110,7 +117,7 @@ def logout_view(request):
 def index(request):
     """Hiển thị tất cả flashcard chưa thuộc của người dùng hiện tại theo trình độ."""
     level = request.GET.get('level', request.session.get('active_level', 'A1')).upper()
-    if level not in ['A1', 'A2', 'B1']:
+    if level not in ['A1', 'A2', 'B1', 'B2']:
         level = 'A1'
     request.session['active_level'] = level
 
@@ -220,13 +227,13 @@ def dashboard_view(request, level_code=None):
     """
     if level_code:
         level = level_code.upper()
-        if level in ['A1', 'A2', 'B1']:
+        if level in ['A1', 'A2', 'B1', 'B2']:
             request.session['active_level'] = level
         else:
             return redirect("dashboard")
     else:
         level = request.GET.get('level', request.session.get('active_level', 'A1')).upper()
-        if level not in ['A1', 'A2', 'B1']:
+        if level not in ['A1', 'A2', 'B1', 'B2']:
             level = 'A1'
         request.session['active_level'] = level
 
@@ -673,8 +680,8 @@ def api_lessons(request):
     Usage: GET /api/lessons?level=a2
     """
     level = request.GET.get('level', 'A1').upper()
-    if level not in ['A1', 'A2', 'B1']:
-        return JsonResponse({"error": "Trình độ không hợp lệ. Vui lòng chọn A1, A2 hoặc B1."}, status=400)
+    if level not in ['A1', 'A2', 'B1', 'B2']:
+        return JsonResponse({"error": "Trình độ không hợp lệ. Vui lòng chọn A1, A2, B1 hoặc B2."}, status=400)
     
     reading = list(ReadingPassage.objects.filter(level=level).values('id', 'title', 'created_at'))
     listening = list(ListeningTrack.objects.filter(level=level).values('id', 'title', 'created_at'))
@@ -700,7 +707,7 @@ def api_flashcards(request):
     Supports search, topic filtering, and pagination.
     """
     level = request.GET.get('level', request.session.get('active_level', 'A1')).upper()
-    if level not in ['A1', 'A2', 'B1']:
+    if level not in ['A1', 'A2', 'B1', 'B2']:
         level = 'A1'
     request.session['active_level'] = level
 
@@ -788,3 +795,453 @@ def api_flashcards(request):
         "current_page": page,
         "total_count": total_count
     })
+
+
+# ---------------------------------------------------------------------------
+# PLACEMENT TEST (BÀI KIỂM TRA ĐẦU VÀO) VIEWS
+# ---------------------------------------------------------------------------
+
+def calculate_placement_level(score, total):
+    """
+    Quy đổi tỷ lệ phần trăm câu đúng sang khung tham chiếu CEFR:
+    - < 45%: A1 (Beginner)
+    - 45% - 64%: A2 (Elementary)
+    - 65% - 84%: B1 (Intermediate)
+    - >= 85%: B2 (Upper Intermediate)
+    """
+    if total <= 0:
+        return "A1", 0.0
+    percentage = round((score / total) * 100, 1)
+    if percentage >= 85.0:
+        level = "B2"
+    elif percentage >= 65.0:
+        level = "B1"
+    elif percentage >= 45.0:
+        level = "A2"
+    else:
+        level = "A1"
+    return level, percentage
+
+
+def placement_test_view(request):
+    """
+    Xử lý làm bài kiểm tra trình độ đầu vào (Placement Test).
+    GET: Lấy danh sách câu hỏi theo thứ tự (sử dụng prefetch_related('choices')), render giao diện làm bài.
+    POST: Nhận đáp án submitted, chấm điểm tự động, tính thang trình độ, lưu kết quả vào PlacementTestResult,
+          cập nhật UserProfile và chuyển hướng tới trang kết quả.
+    """
+    questions = PlacementQuestion.objects.prefetch_related("choices").order_by("order", "id")
+
+    if request.method == "POST":
+        total_questions = questions.count()
+        if total_questions == 0:
+            return redirect("dashboard")
+
+        score = 0
+        answers_detail = []
+
+        for q in questions:
+            choice_id = request.POST.get(f"question_{q.id}")
+            selected_choice = None
+            is_correct = False
+
+            all_choices = list(q.choices.all())
+            correct_choice = next((c for c in all_choices if c.is_correct), None)
+
+            if choice_id:
+                try:
+                    choice_id_int = int(choice_id)
+                    selected_choice = next((c for c in all_choices if c.id == choice_id_int), None)
+                    if selected_choice and selected_choice.is_correct:
+                        score += 1
+                        is_correct = True
+                except (ValueError, TypeError):
+                    pass
+
+            answers_detail.append({
+                "question_id": q.id,
+                "question_text": q.question_text,
+                "level": q.level,
+                "selected_choice_id": selected_choice.id if selected_choice else None,
+                "selected_choice_text": selected_choice.choice_text if selected_choice else "Chưa chọn",
+                "correct_choice_id": correct_choice.id if correct_choice else None,
+                "correct_choice_text": correct_choice.choice_text if correct_choice else "",
+                "is_correct": is_correct,
+            })
+
+        assigned_level, percentage = calculate_placement_level(score, total_questions)
+
+        with transaction.atomic():
+            result = PlacementTestResult.objects.create(
+                user=request.user if request.user.is_authenticated else None,
+                score=score,
+                total_questions=total_questions,
+                assigned_level=assigned_level,
+                answers_detail=answers_detail,
+            )
+
+            # Cập nhật thông tin học viên nếu đã đăng nhập
+            if request.user.is_authenticated:
+                profile, _ = UserProfile.objects.get_or_create(user=request.user)
+                profile.assigned_level = assigned_level
+                profile.has_taken_placement_test = True
+                profile.save(update_fields=["assigned_level", "has_taken_placement_test"])
+                request.session["active_level"] = assigned_level
+
+        request.session["last_placement_result_id"] = result.id
+        return redirect("placement_result", result_id=result.id)
+
+    # GET Request: Hiển thị form làm bài
+    return render(
+        request,
+        "core/placement_test.html",
+        {
+            "questions": questions,
+            "total_questions": questions.count(),
+        },
+    )
+
+
+def placement_result_view(request, result_id=None):
+    """
+    Trang hiển thị kết quả bài kiểm tra đầu vào.
+    Hiển thị số câu đúng/tổng số câu, tỷ lệ %, badge trình độ (A1, A2, B1, B2)
+    và nút dẫn vào học danh sách từ vựng tương ứng.
+    """
+    if result_id:
+        result = get_object_or_404(PlacementTestResult, id=result_id)
+    else:
+        last_id = request.session.get("last_placement_result_id")
+        if last_id:
+            result = get_object_or_404(PlacementTestResult, id=last_id)
+        elif request.user.is_authenticated:
+            result = PlacementTestResult.objects.filter(user=request.user).order_by("-completed_at").first()
+            if not result:
+                return redirect("placement_test")
+        else:
+            return redirect("placement_test")
+
+    percentage = round((result.score / result.total_questions) * 100, 1) if result.total_questions > 0 else 0.0
+
+    level_meta = {
+        "A1": {
+            "title": "A1 - Căn bản (Beginner)",
+            "subtitle": "Khởi đầu vững vàng trên con đường chinh phục tiếng Anh",
+            "badge_color": "emerald",
+            "desc": "Bạn đã bước đầu nhận biết được các từ vựng và câu ngắn cơ bản nhất.",
+            "guidance": "Ở trình độ A1, bạn nên tập trung củng cố vốn từ vựng nền tảng về cuộc sống thường ngày (gia đình, đồ vật, số đếm, thời gian) kết hợp cấu trúc thì hiện tại đơn giản.",
+            "action_text": "Học từ vựng trình độ A1",
+            "vocab_target": "A1",
+        },
+        "A2": {
+            "title": "A2 - Sơ cấp (Elementary)",
+            "subtitle": "Tự tin giao tiếp và diễn đạt nhu cầu thiết yếu hàng ngày",
+            "badge_color": "sky",
+            "desc": "Bạn đã nắm khá tốt các câu hỏi thông dụng và giao tiếp cơ bản.",
+            "guidance": "Ở trình độ A2, bạn có thể diễn đạt các chủ đề quen thuộc. Hãy mở rộng vốn từ miêu tả, du lịch, mua sắm và làm quen thêm các thì quá khứ đơn, tương lai.",
+            "action_text": "Học từ vựng trình độ A2",
+            "vocab_target": "A2",
+        },
+        "B1": {
+            "title": "B1 - Trung cấp (Intermediate)",
+            "subtitle": "Nền tảng vững chắc để bứt phá học thuật và mục tiêu IELTS",
+            "badge_color": "indigo",
+            "desc": "Rất tốt! Bạn hiểu ý chính trong ngữ cảnh quen thuộc và xử lý tốt các tình huống giao tiếp.",
+            "guidance": "Ở trình độ B1, bạn đã có thể diễn đạt quan điểm, kế hoạch và trải nghiệm cá nhân. Hãy trau dồi thêm collocations, phrasal verbs và rèn 4 kỹ năng chuyên sâu.",
+            "action_text": "Học từ vựng trình độ B1",
+            "vocab_target": "B1",
+        },
+        "B2": {
+            "title": "B2 - Trung cao cấp (Upper Intermediate)",
+            "subtitle": "Sử dụng tiếng Anh linh hoạt, tự nhiên với độ chính xác cao",
+            "badge_color": "amber",
+            "desc": "Xuất sắc! Khả năng nắm bắt ngôn ngữ học thuật và giao tiếp trôi chảy của bạn rất ấn tượng.",
+            "guidance": "Ở trình độ B2, bạn đã có thể hiểu các văn bản phức tạp và tương tác trôi chảy. Hãy thử sức với các bài thi IELTS band 6.5 - 7.5+ và luyện viết luận chuyên sâu.",
+            "action_text": "Học từ vựng nâng cao (B2/B1)",
+            "vocab_target": "B1",
+        },
+    }
+
+    current_meta = level_meta.get(result.assigned_level, level_meta["A1"])
+
+    ai_feedback = get_ai_roadmap_feedback(
+        score=result.score,
+        total=result.total_questions,
+        level=result.assigned_level,
+        exam_type="placement"
+    )
+
+    return render(
+        request,
+        "core/placement_result.html",
+        {
+            "result": result,
+            "percentage": percentage,
+            "meta": current_meta,
+            "ai_feedback": ai_feedback,
+            "answers_detail": result.answers_detail or [],
+        },
+    )
+
+
+# ===========================================================================
+# LEVEL-UP EXAM (BÀI THI NÂNG BAND) VIEWS
+# ===========================================================================
+
+@login_required
+def level_up_exam_view(request):
+    """
+    Xử lý làm bài thi nâng band (Level-Up Exam).
+    - Quy tắc: A1 -> A2, A2 -> B1, B1 -> B2.
+    - Nếu user đã ở B2, thông báo đã đạt cấp độ cao nhất.
+    - Chỉ lấy câu hỏi thuộc target_level với prefetch_related("choices").
+    - Đạt khi tỷ lệ đúng >= 80%.
+    - Nếu đậu: cập nhật UserProfile.assigned_level và session['active_level'].
+    - PRG redirect sang /level-up-exam/result/<result_id>/
+    """
+    profile, _ = UserProfile.objects.get_or_create(user=request.user)
+    current_level = profile.assigned_level or "A1"
+    target_level = get_next_level(current_level)
+
+    # Nếu user đã đạt level B2 (cấp độ cao nhất)
+    if not target_level:
+        return render(
+            request,
+            "core/level_up_exam.html",
+            {
+                "is_max_level": True,
+                "current_level": current_level,
+            },
+        )
+
+    questions = (
+        PlacementQuestion.objects.filter(level=target_level)
+        .prefetch_related("choices")
+        .order_by("order", "id")
+    )
+    total_questions = questions.count()
+
+    if request.method == "POST":
+        if total_questions == 0:
+            return redirect("dashboard")
+
+        score = 0
+        answers_detail = []
+
+        for q in questions:
+            choice_id = request.POST.get(f"question_{q.id}")
+            selected_choice = None
+            is_correct = False
+
+            all_choices = list(q.choices.all())
+            correct_choice = next((c for c in all_choices if c.is_correct), None)
+
+            if choice_id:
+                try:
+                    choice_id_int = int(choice_id)
+                    selected_choice = next((c for c in all_choices if c.id == choice_id_int), None)
+                    if selected_choice and selected_choice.is_correct:
+                        score += 1
+                        is_correct = True
+                except (ValueError, TypeError):
+                    pass
+
+            answers_detail.append({
+                "question_id": q.id,
+                "question_text": q.question_text,
+                "level": q.level,
+                "selected_choice_id": selected_choice.id if selected_choice else None,
+                "selected_choice_text": selected_choice.choice_text if selected_choice else "Chưa chọn",
+                "correct_choice_id": correct_choice.id if correct_choice else None,
+                "correct_choice_text": correct_choice.choice_text if correct_choice else "",
+                "is_correct": is_correct,
+            })
+
+        percentage = round((score / total_questions) * 100, 1) if total_questions > 0 else 0.0
+        is_passed = percentage >= 80.0
+
+        with transaction.atomic():
+            result = LevelUpExamResult.objects.create(
+                user=request.user,
+                from_level=current_level,
+                target_level=target_level,
+                score=score,
+                total_questions=total_questions,
+                is_passed=is_passed,
+                answers_detail=answers_detail,
+            )
+
+            # Nếu Đậu: Nâng band trên UserProfile và cập nhật active_level trong session
+            if is_passed:
+                profile.assigned_level = target_level
+                profile.save(update_fields=["assigned_level"])
+                request.session["active_level"] = target_level
+
+        request.session["last_levelup_result_id"] = result.id
+        return redirect("level_up_result", result_id=result.id)
+
+    # GET Request
+    return render(
+        request,
+        "core/level_up_exam.html",
+        {
+            "is_max_level": False,
+            "current_level": current_level,
+            "target_level": target_level,
+            "questions": questions,
+            "total_questions": total_questions,
+        },
+    )
+
+
+@login_required
+def level_up_result_view(request, result_id=None):
+    """
+    Trang hiển thị kết quả bài thi nâng band (Level-Up Exam).
+    - Hiển thị tỷ lệ %, trạng thái Đậu (Pass >= 80%) hay Trượt.
+    - Nếu Đậu: Hiệu ứng pháo giấy chúc mừng thăng hạng và nút CTA học từ vựng cấp độ mới.
+    - Nếu Trượt: Động viên và nút ôn tập / thi lại.
+    """
+    if result_id:
+        result = get_object_or_404(LevelUpExamResult, id=result_id)
+        if result.user != request.user and not request.user.is_staff:
+            return redirect("dashboard")
+    else:
+        last_id = request.session.get("last_levelup_result_id")
+        if last_id:
+            result = get_object_or_404(LevelUpExamResult, id=last_id, user=request.user)
+        else:
+            result = LevelUpExamResult.objects.filter(user=request.user).order_by("-completed_at").first()
+            if not result:
+                return redirect("level_up_exam")
+
+    percentage = result.percentage
+
+    level_meta = {
+        "A1": {
+            "title": "A1 - Căn bản (Beginner)",
+            "subtitle": "Khởi đầu nền móng vững chắc",
+            "badge_color": "emerald",
+        },
+        "A2": {
+            "title": "A2 - Sơ cấp (Elementary)",
+            "subtitle": "Giao tiếp cơ bản và diễn đạt nhu cầu thiết yếu",
+            "badge_color": "sky",
+        },
+        "B1": {
+            "title": "B1 - Trung cấp (Intermediate)",
+            "subtitle": "Sử dụng tiếng Anh tự tin trong công việc & học thuật",
+            "badge_color": "indigo",
+        },
+        "B2": {
+            "title": "B2 - Trung cao cấp (Upper Intermediate)",
+            "subtitle": "Làm chủ ngôn ngữ, sẵn sàng bứt phá điểm IELTS 6.5+",
+            "badge_color": "amber",
+        },
+    }
+
+    target_meta = level_meta.get(result.target_level, level_meta["A2"])
+    from_meta = level_meta.get(result.from_level, level_meta["A1"])
+
+    ai_feedback = get_ai_roadmap_feedback(
+        score=result.score,
+        total=result.total_questions,
+        level=result.target_level if result.is_passed else result.from_level,
+        exam_type="level_up",
+        is_passed=result.is_passed,
+    )
+
+    return render(
+        request,
+        "core/level_up_result.html",
+        {
+            "result": result,
+            "percentage": percentage,
+            "is_passed": result.is_passed,
+            "from_level": result.from_level,
+            "target_level": result.target_level,
+            "target_meta": target_meta,
+            "from_meta": from_meta,
+            "ai_feedback": ai_feedback,
+            "answers_detail": result.answers_detail or [],
+        },
+    )
+
+
+# ===========================================================================
+# AI TUTOR & EXPLANATION AJAX VIEWS
+# ===========================================================================
+
+@require_POST
+def api_ai_explain_view(request):
+    """
+    API endpoint AJAX giải thích câu sai bằng AI (Gemini + Rule-Based Fallback).
+    Nhận: question_id, user_choice_id, hoặc question_text/correct_answer/user_answer.
+    Trả về JSON: { "success": True, "explanation": "...", "source": "gemini"|"fallback" }
+    Zero-crash: Luôn trả về 200 OK với phân tích ngữ pháp, không bao giờ gây lỗi 500.
+    """
+    data = {}
+    try:
+        if request.content_type == "application/json":
+            try:
+                data = json.loads(request.body.decode("utf-8"))
+            except Exception:
+                data = {}
+        else:
+            data = request.POST
+
+        question_id = data.get("question_id")
+        user_choice_id = data.get("user_choice_id")
+        user_answer = (data.get("user_answer") or "").strip()
+        correct_answer = (data.get("correct_answer") or "").strip()
+        question_text = (data.get("question_text") or "").strip()
+        level = (data.get("level") or "A1").strip()
+        choices = []
+
+        if question_id:
+            try:
+                q = PlacementQuestion.objects.prefetch_related("choices").filter(id=question_id).first()
+                if q:
+                    question_text = q.question_text
+                    level = q.level
+                    all_choices = list(q.choices.all())
+                    choices = [c.choice_text for c in all_choices]
+                    correct_obj = next((c for c in all_choices if c.is_correct), None)
+                    if correct_obj:
+                        correct_answer = correct_obj.choice_text
+
+                    if user_choice_id:
+                        user_choice_obj = next((c for c in all_choices if str(c.id) == str(user_choice_id)), None)
+                        if user_choice_obj:
+                            user_answer = user_choice_obj.choice_text
+            except Exception:
+                pass
+
+        if not question_text:
+            question_text = "Câu hỏi trắc nghiệm tiếng Anh"
+        if not correct_answer:
+            correct_answer = "Đáp án chuẩn theo ngữ pháp"
+
+        result = get_ai_explanation(
+            question_text=question_text,
+            correct_answer=correct_answer,
+            user_answer=user_answer,
+            level=level,
+            choices=choices,
+        )
+
+        return JsonResponse(result)
+
+    except Exception:
+        fallback_text = generate_rule_based_explanation(
+            question_text=data.get("question_text", "Câu hỏi kiểm tra tiếng Anh"),
+            correct_answer=data.get("correct_answer", "Đáp án chính xác"),
+            user_answer=data.get("user_answer", "Chưa chọn"),
+            level=data.get("level", "A1"),
+        )
+        return JsonResponse({
+            "success": True,
+            "explanation": fallback_text,
+            "source": "fallback",
+        })
+
