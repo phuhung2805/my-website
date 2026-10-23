@@ -8,4 +8,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('sw.js', TemplateView.as_view(template_name="sw.js", content_type='application/javascript'), name='sw.js'),
     path('', include('core.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    if settings.STATIC_ROOT and str(settings.STATIC_ROOT):
+        urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    if settings.MEDIA_ROOT and str(settings.MEDIA_ROOT):
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
