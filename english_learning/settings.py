@@ -10,22 +10,51 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+load_dotenv(BASE_DIR / '.env')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+z%5eich&!v9&h8dlc-hrl%y078-t5j=rh-bu+(6$psqdf-qhn'
+def env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+def env_list(name):
+    return [item.strip() for item in os.getenv(name, '').split(',') if item.strip()]
+
+
+# Render tự đặt biến RENDER; khi đó mặc định chạy ở chế độ production.
+RENDER_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME', '')
+DEBUG = env_bool('DJANGO_DEBUG', default=not os.getenv('RENDER'))
+
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '')
+if not SECRET_KEY:
+    if not DEBUG:
+        raise ImproperlyConfigured('Production cần biến môi trường DJANGO_SECRET_KEY.')
+    SECRET_KEY = 'local-development-only-key-do-not-use-in-production'
+
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS') or ['localhost', '127.0.0.1', '[::1]']
+CSRF_TRUSTED_ORIGINS = env_list('DJANGO_CSRF_TRUSTED_ORIGINS')
+if RENDER_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_HOSTNAME}')
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 3600
 
 
 # Application definition
@@ -66,6 +95,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
+                'core.context_processors.learner_level',
             ],
         },
     },
@@ -109,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
 
 USE_I18N = True
 
@@ -124,7 +155,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+STORAGES = {
+    'default': {'BACKEND': 'django.core.files.storage.FileSystemStorage'},
+    'staticfiles': {'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage'},
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -132,5 +166,18 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Media files (uploads)
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+LOGIN_URL = 'login'
+
+# Quy tắc nghiệp vụ của bài thi nâng band
+LEVEL_UP_QUESTION_COUNT = 10
+LEVEL_UP_PASS_PERCENT = 80.0
+LEVEL_UP_TIME_LIMIT_SECONDS = 10 * 60
+LEVEL_UP_GRACE_SECONDS = 30
+LEVEL_UP_RETRY_COOLDOWN_HOURS = int(os.getenv('LEVEL_UP_RETRY_COOLDOWN_HOURS', '24'))
+
+# Giới hạn tải lên và số lần gọi Gemini
+SPEAKING_MAX_UPLOAD_BYTES = 10 * 1024 * 1024
+AI_RATE_LIMIT_PER_MINUTE = 10

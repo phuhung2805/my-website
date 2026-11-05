@@ -6,6 +6,8 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from core.models import PlacementQuestion, PlacementChoice
 
+from ._level_up_questions import LEVEL_UP_QUESTIONS
+
 
 SAMPLE_QUESTIONS = [
     # ----------------------------------------------------
@@ -467,42 +469,46 @@ SAMPLE_QUESTIONS = [
 
 
 class Command(BaseCommand):
-    help = "Seed 40 CEFR placement test and level-up exam questions (10 questions per level: A1, A2, B1, B2)"
+    help = "Tạo 40 câu bài đầu vào và 45 câu thi nâng band (hai ngân hàng đề riêng)."
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.NOTICE("Bat dau khoi tao du lieu cau hoi Placement Test..."))
-
         with transaction.atomic():
-            created_questions = 0
-            created_choices = 0
-
             for item in SAMPLE_QUESTIONS:
-                question, q_created = PlacementQuestion.objects.update_or_create(
-                    order=item["order"],
-                    defaults={
-                        "level": item["level"],
-                        "question_text": item["question_text"],
-                    },
+                self._save_question(
+                    PlacementQuestion.EXAM_PLACEMENT,
+                    item["order"],
+                    item["level"],
+                    item["question_text"],
+                    item["choices"],
                 )
-                if q_created:
-                    created_questions += 1
 
-                # Dong bo danh sach lua chon
-                existing_choice_texts = [c[0] for c in item["choices"]]
-                question.choices.exclude(choice_text__in=existing_choice_texts).delete()
-
-                for choice_text, is_correct in item["choices"]:
-                    choice, c_created = PlacementChoice.objects.update_or_create(
-                        question=question,
-                        choice_text=choice_text,
-                        defaults={"is_correct": is_correct},
+            order = 0
+            for level, questions in LEVEL_UP_QUESTIONS.items():
+                for text, options_list, answer in questions:
+                    order += 1
+                    self._save_question(
+                        PlacementQuestion.EXAM_LEVEL_UP,
+                        order,
+                        level,
+                        text,
+                        [(option, option == answer) for option in options_list],
                     )
-                    if c_created:
-                        created_choices += 1
 
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Success! Initialized/Updated {len(SAMPLE_QUESTIONS)} questions "
-                f"({created_questions} new questions, {created_choices} new choices)."
-            )
+        self.stdout.write(self.style.SUCCESS(
+            f"Da cap nhat {len(SAMPLE_QUESTIONS)} cau dau vao va {order} cau thi nang band."
+        ))
+
+    @staticmethod
+    def _save_question(exam_type, order, level, text, choices):
+        question, _ = PlacementQuestion.objects.update_or_create(
+            exam_type=exam_type,
+            order=order,
+            defaults={"level": level, "question_text": text},
         )
+        question.choices.exclude(choice_text__in=[choice for choice, _ in choices]).delete()
+        for choice_text, is_correct in choices:
+            PlacementChoice.objects.update_or_create(
+                question=question,
+                choice_text=choice_text,
+                defaults={"is_correct": is_correct},
+            )

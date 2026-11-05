@@ -2,9 +2,11 @@
 models.py – Core data models cho English Pro.
 
 Cấu trúc quan hệ:
-  User (built-in) ──< VocabSet ──< Vocabulary ──1 Flashcard
-  Category ──< Vocabulary
-  User ──< QuizResult >── Category
+  Category ──< Vocabulary ──< Flashcard >── User
+  User ──1 UserProfile
+  User ──< UserSubmission, PlacementTestResult, LevelUpExamResult
+  ReadingPassage ──< ReadingQuestion; ListeningTrack ──< ListeningQuestion
+  PlacementQuestion ──< PlacementChoice
 """
 from django.db import models
 from django.contrib.auth.models import User
@@ -16,6 +18,10 @@ LEVEL_CHOICES = [
     ("B1", "B1"),
     ("B2", "B2"),
 ]
+LEVELS = [code for code, _ in LEVEL_CHOICES]
+
+SCORE_SCALE_MAX = 10.0
+DEFAULT_SKILL_TARGET = 6.5
 
 
 class Category(models.Model):
@@ -45,30 +51,6 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-
-
-class VocabSet(models.Model):
-    """Bộ từ vựng do người dùng tạo ra từ tính năng AI Generator."""
-
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="vocab_sets",
-        null=True,
-        blank=True,
-        verbose_name="Người tạo",
-    )
-    title = models.CharField(max_length=200, verbose_name="Tiêu đề bộ từ vựng")
-    source_text = models.TextField(blank=True, verbose_name="Đoạn văn nguồn")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Ngày tạo")
-
-    class Meta:
-        verbose_name = "Bộ từ vựng"
-        verbose_name_plural = "Bộ từ vựng"
-        ordering = ["-created_at"]
-
-    def __str__(self):
-        return self.title
 
 
 class Vocabulary(models.Model):
@@ -114,15 +96,7 @@ class Vocabulary(models.Model):
         Category,
         on_delete=models.CASCADE,
         related_name="vocabularies",
-        verbose_name="Chủ đề",
-    )
-    vocab_set = models.ForeignKey(
-        VocabSet,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name="words",
-        verbose_name="Bộ từ vựng",
+        verbose_name="Giáo trình",
     )
     word = models.CharField(max_length=100, verbose_name="Từ vựng")
     ipa = models.CharField(
@@ -146,7 +120,7 @@ class Vocabulary(models.Model):
         max_length=50,
         choices=TOPIC_CHOICES,
         default="other",
-        verbose_name="Chủ đề",
+        verbose_name="Nhóm từ theo nội dung",
     )
 
     class Meta:
@@ -165,8 +139,6 @@ class Flashcard(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name="flashcards",
-        null=True,
-        blank=True,
         verbose_name="Người sở hữu",
     )
     vocabulary = models.ForeignKey(
@@ -182,7 +154,7 @@ class Flashcard(models.Model):
     repetition_count = models.IntegerField(default=0, verbose_name="Số lần lặp lại liên tiếp")
     easiness_factor = models.FloatField(default=2.5, verbose_name="Hệ số dễ (EF)")
     interval = models.IntegerField(default=0, verbose_name="Khoảng thời gian (ngày)")
-    next_review_date = models.DateField(default=timezone.now, verbose_name="Ngày ôn tập tiếp theo")
+    next_review_date = models.DateField(default=timezone.localdate, verbose_name="Ngày ôn tập tiếp theo")
 
     class Meta:
         verbose_name = "Flashcard"
@@ -193,45 +165,6 @@ class Flashcard(models.Model):
         return f"Flashcard: {self.vocabulary.word}"
 
 
-class QuizResult(models.Model):
-    """Kết quả bài kiểm tra – thay thế và mở rộng UserProgress."""
-
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="quiz_results",
-        null=True,
-        blank=True,
-        verbose_name="Người dùng",
-    )
-    category = models.ForeignKey(
-        Category,
-        on_delete=models.CASCADE,
-        verbose_name="Chủ đề",
-    )
-    score = models.IntegerField(default=0, verbose_name="Số câu đúng")
-    total = models.IntegerField(default=5, verbose_name="Tổng số câu")
-    percentage = models.FloatField(default=0.0, verbose_name="Phần trăm đúng")
-    answers_detail = models.JSONField(
-        default=dict, blank=True, verbose_name="Chi tiết đáp án"
-    )
-    completed_at = models.DateTimeField(
-        auto_now_add=True, verbose_name="Thời gian hoàn thành"
-    )
-
-    class Meta:
-        verbose_name = "Kết quả kiểm tra"
-        verbose_name_plural = "Kết quả kiểm tra"
-        ordering = ["-completed_at"]
-
-    def __str__(self):
-        return f"{self.user or 'Khách'} – {self.category} – {self.score}/{self.total}"
-
-
-# Giữ alias để không phá vỡ code cũ tham chiếu UserProgress
-UserProgress = QuizResult
-
-
 # ===========================================================================
 # 4-SKILLS PLATFORM & USER DASHBOARD MODELS
 # ===========================================================================
@@ -240,10 +173,10 @@ class UserProfile(models.Model):
     """Thông tin cá nhân hóa của học viên, lưu trữ mục tiêu học tập."""
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    target_listening = models.FloatField(default=0.0, verbose_name="Mục tiêu Nghe (Listening)")
-    target_speaking = models.FloatField(default=0.0, verbose_name="Mục tiêu Nói (Speaking)")
-    target_reading = models.FloatField(default=0.0, verbose_name="Mục tiêu Đọc (Reading)")
-    target_writing = models.FloatField(default=0.0, verbose_name="Mục tiêu Viết (Writing)")
+    target_listening = models.FloatField(default=DEFAULT_SKILL_TARGET, verbose_name="Mục tiêu Nghe (Listening)")
+    target_speaking = models.FloatField(default=DEFAULT_SKILL_TARGET, verbose_name="Mục tiêu Nói (Speaking)")
+    target_reading = models.FloatField(default=DEFAULT_SKILL_TARGET, verbose_name="Mục tiêu Đọc (Reading)")
+    target_writing = models.FloatField(default=DEFAULT_SKILL_TARGET, verbose_name="Mục tiêu Viết (Writing)")
     exam_date = models.DateField(null=True, blank=True, verbose_name="Ngày thi dự kiến")
     assigned_level = models.CharField(
         max_length=2,
@@ -412,12 +345,20 @@ class UserSubmission(models.Model):
         choices=SKILL_CHOICES,
         verbose_name="Kỹ năng",
     )
+    task_id = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name="Mã đề (theo kỹ năng)",
+    )
     task_title = models.CharField(max_length=255, verbose_name="Tiêu đề bài tập")
     score_achieved = models.FloatField(
         null=True,
         blank=True,
-        verbose_name="Điểm số đạt được",
+        verbose_name="Điểm thang 10 (trống nếu chưa được chấm)",
     )
+    essay_text = models.TextField(blank=True, verbose_name="Bài viết")
+    audio_path = models.CharField(max_length=255, blank=True, verbose_name="File ghi âm")
+    feedback = models.TextField(blank=True, verbose_name="Nhận xét")
     completed_at = models.DateTimeField(
         default=timezone.now,
         verbose_name="Thời gian hoàn thành",
@@ -432,7 +373,41 @@ class UserSubmission(models.Model):
         return f"{self.user.username} - {self.get_skill_type_display()} - {self.task_title}"
 
 
-class ReadingQuestion(models.Model):
+class SkillQuestion(models.Model):
+    """Phần chung của câu hỏi kỹ năng Đọc và Nghe."""
+
+    question_text = models.TextField(verbose_name="Nội dung câu hỏi")
+    options = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name="Danh sách lựa chọn (dạng mảng JSON)",
+    )
+    correct_answer = models.CharField(max_length=255, verbose_name="Đáp án đúng")
+    level = models.CharField(
+        max_length=2,
+        choices=LEVEL_CHOICES,
+        default="A1",
+        verbose_name="Trình độ",
+    )
+
+    class Meta:
+        abstract = True
+
+    def is_correct(self, user_answer: str) -> bool:
+        """Lớp câu hỏi giữ đáp án nên tự kiểm tra câu trả lời (mẫu Expert)."""
+        return self.normalize_answer(user_answer) == self.normalize_answer(self.correct_answer)
+
+    def normalize_answer(self, answer: str) -> str:
+        """Quy đáp án dạng chữ cái (A, B, C...) về nội dung lựa chọn rồi so sánh không phân biệt hoa thường."""
+        value = (answer or "").strip()
+        if len(value) == 1 and value.isalpha() and self.options:
+            index = ord(value.upper()) - ord("A")
+            if 0 <= index < len(self.options):
+                value = str(self.options[index])
+        return value.lower()
+
+
+class ReadingQuestion(SkillQuestion):
     """Câu hỏi thuộc bài đọc hiểu."""
 
     QUESTION_TYPE_CHOICES = [
@@ -446,24 +421,11 @@ class ReadingQuestion(models.Model):
         related_name="questions",
         verbose_name="Bài đọc",
     )
-    question_text = models.TextField(verbose_name="Nội dung câu hỏi")
     question_type = models.CharField(
         max_length=30,
         choices=QUESTION_TYPE_CHOICES,
         default="multiple_choice",
         verbose_name="Loại câu hỏi",
-    )
-    options = models.JSONField(
-        default=list,
-        blank=True,
-        verbose_name="Danh sách lựa chọn (dạng mảng JSON)",
-    )
-    correct_answer = models.CharField(max_length=255, verbose_name="Đáp án đúng")
-    level = models.CharField(
-        max_length=2,
-        choices=LEVEL_CHOICES,
-        default="A1",
-        verbose_name="Trình độ",
     )
 
     class Meta:
@@ -474,7 +436,7 @@ class ReadingQuestion(models.Model):
         return f"{self.passage.title} - Q: {self.question_text[:50]}"
 
 
-class ListeningQuestion(models.Model):
+class ListeningQuestion(SkillQuestion):
     """Câu hỏi thuộc bài nghe hiểu."""
 
     QUESTION_TYPE_CHOICES = [
@@ -488,24 +450,11 @@ class ListeningQuestion(models.Model):
         related_name="questions",
         verbose_name="Bài nghe",
     )
-    question_text = models.TextField(verbose_name="Nội dung câu hỏi")
     question_type = models.CharField(
         max_length=30,
         choices=QUESTION_TYPE_CHOICES,
         default="multiple_choice",
         verbose_name="Loại câu hỏi",
-    )
-    options = models.JSONField(
-        default=list,
-        blank=True,
-        verbose_name="Danh sách lựa chọn (dạng mảng JSON)",
-    )
-    correct_answer = models.CharField(max_length=255, verbose_name="Đáp án đúng")
-    level = models.CharField(
-        max_length=2,
-        choices=LEVEL_CHOICES,
-        default="A1",
-        verbose_name="Trình độ",
     )
 
     class Meta:
@@ -516,34 +465,27 @@ class ListeningQuestion(models.Model):
         return f"{self.track.title} - Q: {self.question_text[:50]}"
 
 
-class VocabularyQuestion(models.Model):
-    """Câu hỏi trắc nghiệm kiểm tra từ vựng."""
-    question_text = models.TextField(verbose_name="Câu hỏi")
-    options = models.JSONField(default=list, verbose_name="Danh sách lựa chọn (dạng mảng JSON)")
-    correct_answer = models.CharField(max_length=255, verbose_name="Đáp án đúng")
-    level = models.CharField(
-        max_length=2,
-        choices=LEVEL_CHOICES,
-        default="A1",
-        verbose_name="Trình độ",
-    )
-
-    class Meta:
-        verbose_name = "Câu hỏi từ vựng"
-        verbose_name_plural = "Câu hỏi từ vựng"
-
-    def __str__(self):
-        return f"Q: {self.question_text[:50]} ({self.level})"
-
-
 # ===========================================================================
 # PLACEMENT TEST (BÀI KIỂM TRA ĐẦU VÀO) MODELS
 # ===========================================================================
 
 class PlacementQuestion(models.Model):
-    """Câu hỏi kiểm tra trình độ đầu vào (Placement Test)."""
+    """Câu hỏi trắc nghiệm của bài đầu vào hoặc bài thi nâng band (hai ngân hàng đề tách biệt)."""
+
+    EXAM_PLACEMENT = "placement"
+    EXAM_LEVEL_UP = "level_up"
+    EXAM_TYPE_CHOICES = [
+        (EXAM_PLACEMENT, "Bài kiểm tra đầu vào"),
+        (EXAM_LEVEL_UP, "Bài thi nâng band"),
+    ]
 
     question_text = models.CharField(max_length=500, verbose_name="Nội dung câu hỏi")
+    exam_type = models.CharField(
+        max_length=20,
+        choices=EXAM_TYPE_CHOICES,
+        default=EXAM_PLACEMENT,
+        verbose_name="Thuộc bài thi",
+    )
     level = models.CharField(
         max_length=2,
         choices=LEVEL_CHOICES,
@@ -606,6 +548,7 @@ class PlacementTestResult(models.Model):
         blank=True,
         verbose_name="Chi tiết câu trả lời",
     )
+    ai_feedback = models.JSONField(default=dict, blank=True, verbose_name="Nhận xét đã lưu")
     completed_at = models.DateTimeField(auto_now_add=True, verbose_name="Thời gian hoàn thành")
 
     class Meta:
@@ -666,11 +609,13 @@ class LevelUpExamResult(models.Model):
     score = models.IntegerField(default=0, verbose_name="Số câu đúng")
     total_questions = models.IntegerField(default=0, verbose_name="Tổng số câu")
     is_passed = models.BooleanField(default=False, verbose_name="Kết quả Đạt")
+    submitted_late = models.BooleanField(default=False, verbose_name="Nộp quá giờ")
     answers_detail = models.JSONField(
         default=list,
         blank=True,
         verbose_name="Chi tiết câu trả lời",
     )
+    ai_feedback = models.JSONField(default=dict, blank=True, verbose_name="Nhận xét đã lưu")
     completed_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name="Thời gian hoàn thành",

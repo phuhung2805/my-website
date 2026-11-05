@@ -31,4 +31,6 @@ urlpatterns = [
 
     # AI Tutor Routes
     path("api/ai-explain/", views.api_ai_explain_view, name="api_ai_explain"),
+
+    path("offline/", views.offline_view, name="offline"),
 ]

@@ -40,11 +40,11 @@
                     <i class="fas fa-robot text-purple-300"></i>
                 </span>
                 <span class="text-xs font-black uppercase tracking-wider text-purple-300 flex items-center gap-1.5">
-                    ✨ AI Gia Sư · Nhận xét & Lộ trình học
+                    Nhận xét & Lộ trình học
                 </span>
             </div>
             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-400/20">
-                {% if ai_feedback.source == 'gemini' %}⚡ Gemini AI{% else %}🤖 AI Gia Sư{% endif %}
+                {% if ai_feedback.source == 'gemini' %}⚡ Gemini AI{% else %}📘 Theo quy tắc{% endif %}
             </span>
         </div>
         <p class="text-xs sm:text-sm text-purple-100 leading-relaxed font-normal whitespace-pre-line">
@@ -170,13 +170,6 @@
                class="px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-sm sm:text-base rounded-2xl transition-all flex items-center justify-center gap-2 text-center">
                 <i class="fas fa-chart-line text-emerald-600"></i> Bảng điều khiển
             </a>
-
-            <!-- Retake Test -->
-            <a href="{% url 'placement_test' %}" 
-               class="px-4 py-3.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 font-semibold text-xs sm:text-sm rounded-2xl transition-all flex items-center justify-center gap-1.5 text-center"
-               title="Làm lại bài kiểm tra">
-                <i class="fas fa-rotate-right"></i> Làm lại bài test
-            </a>
         </div>
     </div>
 
@@ -254,7 +247,7 @@
                                 data-question-text="{{ item.question_text }}"
                                 data-level="{{ item.level|default:'A1' }}">
                             <i class="fas fa-wand-magic-sparkles text-amber-300"></i>
-                            <span>✨ AI Giải thích</span>
+                            <span>✨ Giải thích câu này</span>
                         </button>
 
                         <div id="ai-explain-box-{{ item.question_id }}" class="hidden mt-3 p-4 bg-purple-50/80 rounded-2xl border border-purple-200 text-xs sm:text-sm text-slate-700 space-y-2 animate-fade-in shadow-inner">
@@ -302,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function () {
             box.innerHTML = `
                 <div class="flex items-center gap-2 text-purple-700 font-bold text-xs py-2">
                     <i class="fas fa-spinner fa-spin text-sm"></i>
-                    <span>Trợ lý AI đang phân tích lỗi sai và đối chiếu ngữ pháp...</span>
+                    <span>Đang tạo lời giải thích...</span>
                 </div>
             `;
             this.disabled = true;
@@ -327,7 +320,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const data = await response.json();
                 if (data.success && data.explanation) {
-                    const formatted = data.explanation
+                    const safeText = String(data.explanation)
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    const formatted = safeText
                         .replace(/\n\n/g, '<br><br>')
                         .replace(/\n/g, '<br>')
                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
@@ -335,10 +332,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     box.innerHTML = `
                         <div class="flex items-center justify-between pb-1.5 border-b border-purple-200/60 mb-2">
                             <span class="text-[11px] font-black uppercase tracking-wider text-purple-700 flex items-center gap-1.5">
-                                <i class="fas fa-brain text-purple-600"></i> Phân Tích Ngữ Pháp AI
+                                <i class="fas fa-brain text-purple-600"></i> Giải thích câu sai
                             </span>
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200">
-                                ${data.source === 'gemini' ? '⚡ Gemini AI' : '🤖 AI Gia Sư'}
+                                ${data.source === 'gemini' ? '⚡ Gemini AI' : '📘 Theo quy tắc'}
                             </span>
                         </div>
                         <div class="leading-relaxed text-slate-700 text-xs sm:text-sm">
@@ -351,7 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (err) {
                 box.innerHTML = `
                     <div class="text-xs sm:text-sm text-slate-700 leading-relaxed">
-                        <strong class="text-purple-700 block mb-1">🤖 AI Phân Tích Nhanh:</strong>
+                        <strong class="text-purple-700 block mb-1">Giải thích nhanh:</strong>
                         Đáp án đúng là <strong>"${this.dataset.correctAnswer}"</strong>. Phương án bạn chọn chưa phù hợp với cấu trúc ngữ pháp câu hỏi cấp độ ${this.dataset.level}. Hãy lưu ý đối chiếu thì động từ và liên từ trong câu.
                     </div>
                 `;

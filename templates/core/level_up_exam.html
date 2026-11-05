@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load custom_filters %}
 
 {% block title %}Bài Thi Nâng Band (Level-Up Exam) – English Pro{% endblock %}
 {% block nav_levelup %}nav-active{% endblock %}
@@ -7,7 +8,20 @@
 {% block content %}
 <div class="max-w-3xl mx-auto space-y-6 sm:space-y-8 animate-slide-up pb-20">
 
-    {% if is_max_level %}
+    {% if is_cooldown %}
+    <div class="bg-white rounded-3xl border border-slate-200 p-8 text-center space-y-3 shadow-sm">
+        <div class="text-4xl">⏳</div>
+        <h1 class="text-xl font-black text-slate-800">Chưa thể thi lại</h1>
+        <p class="text-sm text-slate-600">
+            Bạn có thể thi lại bài nâng band từ {{ current_level }} lên {{ target_level }} sau
+            <strong>{{ cooldown_until|date:"H:i d/m/Y" }}</strong>. Hãy dùng thời gian này để ôn từ vựng và xem lại các câu sai.
+        </p>
+        <a href="{% url 'index' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-600 text-white font-bold text-sm rounded-xl hover:bg-brand-700">
+            <i class="fas fa-book-open"></i> Ôn từ vựng {{ current_level }}
+        </a>
+    </div>
+
+    {% elif is_max_level %}
     <!-- MAX LEVEL REACHED BANNER -->
     <div class="bg-gradient-to-br from-amber-500 via-orange-600 to-amber-700 rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden shadow-2xl text-center space-y-6">
         <div class="absolute -right-12 -bottom-12 w-52 h-52 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -28,7 +42,7 @@
             </h1>
 
             <p class="text-amber-100 text-sm sm:text-base leading-relaxed">
-                Xin chúc mừng! Bạn hiện đang ở cấp độ cao nhất trong hệ thống phân loại CEFR của English Pro. Bạn không cần thi nâng band nữa. Hãy tiếp tục luyện các đề thi chuyên sâu 4 kỹ năng (IELTS 6.5 - 7.5+) và duy trì vốn từ vựng học thuật đỉnh cao!
+                Xin chúc mừng! Bạn hiện đang ở cấp độ cao nhất trong hệ thống phân loại CEFR của English Pro. Bạn không cần thi nâng band nữa. Hãy tiếp tục duy trì các bài luyện 4 kỹ năng.
             </p>
 
             <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -150,7 +164,7 @@
 
             <!-- Choices Radio List -->
             <div class="space-y-2.5 sm:space-y-3">
-                {% for choice in q.choices.all %}
+                {% for choice in q.choices.all|shuffled %}
                 <label class="choice-item flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-brand-300 hover:bg-slate-50/70 cursor-pointer transition-all duration-150 has-[:checked]:border-brand-600 has-[:checked]:bg-brand-50/70 has-[:checked]:shadow-sm group select-none">
                     <input type="radio" 
                            name="question_{{ q.id }}" 
@@ -253,9 +267,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let isSubmitted = false;
 
-    // --- 1. COUNTDOWN TIMER (10 MINUTES = 600 SECONDS) ---
-    const TOTAL_SECONDS = 10 * 60;
-    let secondsRemaining = TOTAL_SECONDS;
+    // --- 1. COUNTDOWN TIMER ---
+    // Thời gian còn lại do server tính, tải lại trang không làm đồng hồ đặt lại
+    let secondsRemaining = {{ seconds_remaining|default:0 }};
+    if (countdownDisplay) countdownDisplay.textContent = formatTime(secondsRemaining);
 
     function formatTime(sec) {
         const m = Math.floor(sec / 60);

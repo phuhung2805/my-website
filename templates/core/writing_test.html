@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ task.title }} – IELTS Writing Test</title>
+    <title>{{ task.title }} – Luyện Viết</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -47,7 +47,7 @@
     <!-- 1. STICKY TOP TOOLBAR -->
     <header class="bg-slate-900 text-white h-16 px-4 sm:px-6 flex items-center justify-between border-b border-slate-800 z-30 flex-shrink-0">
         <div class="flex items-center gap-3">
-            <span class="bg-emerald-500 text-slate-900 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider">IELTS Writing</span>
+            <span class="bg-emerald-500 text-slate-900 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider">Luyện Viết</span>
             <h1 class="font-bold text-sm sm:text-base truncate max-w-[200px] sm:max-w-xs md:max-w-md lg:max-w-lg text-slate-100">
                 {{ task.title }}
             </h1>
@@ -99,16 +99,16 @@
                 </h2>
                 <div class="w-20 h-1 bg-emerald-500 rounded-full"></div>
 
-                <!-- IELTS Standard Instructions Box -->
+                <!-- Instructions Box -->
                 <div class="bg-white rounded-2xl border border-stone-200 p-5 space-y-3 shadow-sm">
                     <h3 class="font-bold text-stone-800 text-xs sm:text-sm flex items-center gap-2 uppercase tracking-wide">
                         <i class="fas fa-info-circle text-amber-500"></i>
-                        IELTS Standard Instructions
+                        Hướng dẫn làm bài
                     </h3>
                     <ul class="text-xs text-stone-600 space-y-2 list-disc pl-4 leading-relaxed">
-                        <li>You should spend about 40 minutes on this task.</li>
-                        <li>Write about the topic below, giving reasons and examples to support your arguments.</li>
-                        <li>Write at least 250 words. Write neatly and structure your essay in multiple paragraphs.</li>
+                        <li>Viết về chủ đề bên dưới, nêu lý do và ví dụ để làm rõ ý của bạn.</li>
+                        <li>Độ dài đề xuất cho trình độ {{ task.level }}: khoảng {{ word_target }} từ, chia thành nhiều đoạn.</li>
+                        <li>Bài được chấm khi dịch vụ AI khả dụng; nếu không, bài vẫn được lưu nhưng chưa có điểm.</li>
                     </ul>
                 </div>
 
@@ -136,8 +136,12 @@
                         </div>
                         
                         <div class="flex items-end gap-3">
-                            <span class="text-5xl font-black text-emerald-400 tracking-tight leading-none">{{ band }}</span>
-                            <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">Ước lượng Band Score</span>
+                            {% if skill_score is not None %}
+                            <span class="text-5xl font-black text-emerald-400 tracking-tight leading-none">{{ skill_score }}</span>
+                            <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">Điểm / thang 10 do AI chấm</span>
+                            {% else %}
+                            <span class="text-2xl font-black text-amber-300 tracking-tight leading-none">Chưa chấm</span>
+                            {% endif %}
                         </div>
                         
                         <p class="text-slate-200 text-xs sm:text-sm leading-relaxed italic">
@@ -169,9 +173,13 @@
                         </h3>
                         <!-- Word count status pill -->
                         <div class="flex items-center gap-2 text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full">
-                            <span id="wordCountText">0 / 250</span> từ
+                            <span id="wordCountText">0 / {{ word_target }}</span> từ
                         </div>
                     </div>
+
+                    {% if error %}
+                    <p class="px-4 py-3 rounded-xl text-sm font-semibold bg-rose-50 border border-rose-200 text-rose-700" role="alert">{{ error }}</p>
+                    {% endif %}
 
                     <!-- Beautiful interactive textarea -->
                     <div class="flex-1 flex flex-col relative">
@@ -179,13 +187,13 @@
                                   name="essay_text" 
                                   placeholder="Bắt đầu viết bài luận tiếng Anh của bạn tại đây..." 
                                   class="flex-grow w-full min-h-[350px] md:min-h-[400px] p-6 border-2 border-slate-200 rounded-2xl text-slate-800 text-base leading-relaxed font-serif focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 transition-all resize-none shadow-inner"
-                                  required></textarea>
+                                  required>{{ essay_text }}</textarea>
                     </div>
 
                     <!-- Progress bar of target word length -->
                     <div class="space-y-1.5">
                         <div class="flex justify-between text-[11px] font-bold text-slate-400">
-                            <span>Mục tiêu tối thiểu: 250 từ</span>
+                            <span>Độ dài đề xuất: {{ word_target }} từ (tối thiểu {{ min_words }} từ)</span>
                             <span id="progressPercent">0%</span>
                         </div>
                         <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200/50">
@@ -236,6 +244,7 @@
             const countText = document.getElementById('wordCountText');
             const progressPercent = document.getElementById('progressPercent');
             const progressBar = document.getElementById('progressBar');
+            const wordTarget = {{ word_target }};
 
             function updateWordCount() {
                 const text = textarea.value.trim();
@@ -243,18 +252,18 @@
                 const count = words.length;
 
                 // Update counter text
-                countText.textContent = `${count} / 250`;
+                countText.textContent = `${count} / ${wordTarget}`;
 
                 // Calculate progress
-                const percent = Math.min(100, Math.round((count / 250) * 100));
+                const percent = Math.min(100, Math.round((count / wordTarget) * 100));
                 progressPercent.textContent = `${percent}%`;
                 progressBar.style.width = `${percent}%`;
 
                 // Color changes based on progress
-                if (count >= 250) {
+                if (count >= wordTarget) {
                     progressBar.className = 'bg-emerald-500 h-full rounded-full transition-all duration-300';
                     countText.parentElement.className = 'flex items-center gap-2 text-xs font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full';
-                } else if (count >= 150) {
+                } else if (count >= wordTarget * 0.6) {
                     progressBar.className = 'bg-yellow-400 h-full rounded-full transition-all duration-300';
                     countText.parentElement.className = 'flex items-center gap-2 text-xs font-bold text-amber-600 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full';
                 } else {

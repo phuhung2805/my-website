@@ -1,70 +1,58 @@
-const CACHE_NAME = 'english-pro-cache-v1';
-const urlsToCache = [
-    '/',
-    '/quiz/',
-    '/ai-flashcard/',
+const CACHE_NAME = 'english-pro-cache-v2';
+const OFFLINE_URL = '/offline/';
+const PRECACHE_URLS = [
+    OFFLINE_URL,
     '/static/manifest.json',
-    'https://cdn.tailwindcss.com',
-    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+    '/static/icon-192x192.png',
+    '/static/icon-512x512.png',
 ];
 
-// Cài đặt Service Worker và cache các file tĩnh
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
-            })
+            .then(cache => cache.addAll(PRECACHE_URLS))
+            .then(() => self.skipWaiting())
     );
 });
 
-// Cache and Return requests
-self.addEventListener('fetch', event => {
-    event.respondWith(
-        caches.match(event.request)
-            .then(response => {
-                // Trả về response từ cache nếu tìm thấy
-                if (response) {
-                    return response;
-                }
-                
-                // Nếu không có trong cache, fetch từ network
-                return fetch(event.request).then(
-                    function(response) {
-                        // Kiểm tra nếu response không hợp lệ thì không cache
-                        if(!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-
-                        // Clone response vì nó là một stream, chỉ đọc được 1 lần
-                        var responseToCache = response.clone();
-
-                        caches.open(CACHE_NAME)
-                            .then(function(cache) {
-                                cache.put(event.request, responseToCache);
-                            });
-
-                        return response;
-                    }
-                );
-            })
-    );
-});
-
-// Xoá cache cũ khi kích hoạt service worker mới
 self.addEventListener('activate', event => {
-    const cacheWhitelist = [CACHE_NAME];
     event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheWhitelist.indexOf(cacheName) === -1) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
+        caches.keys()
+            .then(names => Promise.all(
+                names.filter(name => name !== CACHE_NAME).map(name => caches.delete(name))
+            ))
+            .then(() => self.clients.claim())
     );
+});
+
+self.addEventListener('fetch', event => {
+    const request = event.request;
+    if (request.method !== 'GET') {
+        return;
+    }
+
+    // Trang HTML có dữ liệu riêng của từng học viên nên không lưu vào cache.
+    if (request.mode === 'navigate') {
+        event.respondWith(fetch(request).catch(() => caches.match(OFFLINE_URL)));
+        return;
+    }
+
+    // Chỉ cache tệp tĩnh cùng nguồn.
+    const url = new URL(request.url);
+    if (url.origin === self.location.origin && url.pathname.startsWith('/static/')) {
+        event.respondWith(
+            caches.match(request).then(cached => {
+                if (cached) {
+                    return cached;
+                }
+                return fetch(request).then(response => {
+                    if (response.ok) {
+                        const copy = response.clone();
+                        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+                    }
+                    return response;
+                });
+            })
+        );
+    }
 });

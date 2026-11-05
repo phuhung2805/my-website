@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ prompt.title }} – IELTS Speaking Test</title>
+    <title>{{ prompt.title }} – Luyện Nói</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -65,7 +65,7 @@
     <!-- 1. STICKY TOP TOOLBAR -->
     <header class="bg-slate-900 text-white h-16 px-4 sm:px-6 flex items-center justify-between border-b border-slate-800 z-30 flex-shrink-0">
         <div class="flex items-center gap-3">
-            <span class="bg-emerald-500 text-slate-900 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider">IELTS Speaking</span>
+            <span class="bg-emerald-500 text-slate-900 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider">Luyện Nói</span>
             <h1 class="font-bold text-sm sm:text-base truncate max-w-[200px] sm:max-w-xs md:max-w-md lg:max-w-lg text-slate-100">
                 {{ prompt.title }}
             </h1>
@@ -82,15 +82,15 @@
     <!-- 2. MAIN WORKSPACE -->
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
 
-        <!-- LEFT PANEL: IELTS Cue Card (50% Width) -->
+        <!-- LEFT PANEL: Cue Card (50% Width) -->
         <section class="w-full md:w-[50%] h-1/2 md:h-full bg-stone-50 border-r border-slate-200 overflow-y-auto px-6 sm:px-10 py-8 select-text">
             <div class="max-w-xl mx-auto space-y-6">
                 <!-- Card Label -->
                 <div class="inline-flex items-center bg-stone-200/60 text-stone-700 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider">
-                    IELTS Cue Card (Speaking Part 2)
+                    Thẻ đề bài nói (Cue Card)
                 </div>
 
-                <!-- IELTS Cue Card Layout -->
+                <!-- Cue Card Layout -->
                 <div class="bg-white rounded-3xl border-2 border-stone-200 shadow-xl p-8 relative overflow-hidden font-serif">
                     <div class="absolute right-0 top-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl"></div>
                     
@@ -104,7 +104,7 @@
                         </p>
                     </div>
 
-                    <!-- Prompt Text Content (IELTS layout) -->
+                    <!-- Prompt Text Content -->
                     <div class="space-y-6 text-stone-700 leading-relaxed text-sm sm:text-base">
                         <p class="font-bold text-stone-800 text-base sm:text-lg italic">
                             {{ prompt.prompt_text|linebreaks }}
@@ -179,7 +179,7 @@
                             <!-- AJAX Submission Button -->
                             <button id="btn-submit" 
                                     class="w-full mt-2 py-3 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.98] text-slate-900 font-bold text-sm rounded-xl transition-all shadow-md flex items-center justify-center gap-2">
-                                <i class="fas fa-paper-plane"></i> Nộp bài nói lên AI chấm điểm
+                                <i class="fas fa-paper-plane"></i> Nộp và lưu bài nói
                             </button>
                         </div>
                     </div>
@@ -189,40 +189,21 @@
                 <div id="loading-stage" class="hidden space-y-6 text-center animate-pulse">
                     <div class="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
                     <div class="space-y-2">
-                        <h3 class="text-base font-bold text-slate-800">Đang tải và chấm bài nói...</h3>
+                        <h3 class="text-base font-bold text-slate-800">Đang tải bài nói lên...</h3>
                         <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">
-                            Mô hình AI đang thẩm định bài thu âm, phát âm, tính mạch lạc và vốn từ vựng của bạn. Quá trình này diễn ra trong vài giây...
+                            Vui lòng chờ trong giây lát.
                         </p>
                     </div>
                 </div>
 
                 <!-- RESULTS STAGE: Glorious grade metrics -->
                 <div id="result-stage" class="hidden space-y-6">
-                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 shadow-xl border border-slate-700 relative overflow-hidden">
-                        <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl"></div>
-                        <div class="relative z-10 space-y-4">
-                            <div class="flex items-center justify-between">
-                                <span class="bg-emerald-500 text-slate-900 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">Kết quả thẩm định</span>
-                                <span class="text-slate-400 text-xs font-semibold">Speaking Uploaded</span>
-                            </div>
-                            
-                            <div class="flex items-end gap-3">
-                                <span id="band-score-text" class="text-5xl font-black text-emerald-400 tracking-tight leading-none">--</span>
-                                <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">IELTS Band Score</span>
-                            </div>
-                            
-                            <p class="text-slate-200 text-xs sm:text-sm leading-relaxed italic">
-                                "Bài nói của bạn đã được tải lên và phân tích thành công. Hệ thống ghi nhận điểm phản xạ lưu trữ vào lịch sử heatmap Dashboard của bạn!"
-                            </p>
-                        </div>
-                    </div>
-
                     <div class="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 space-y-3">
                         <h4 class="font-bold text-emerald-800 text-sm flex items-center gap-2">
-                            <i class="fas fa-circle-check"></i> Nộp bài thành công!
+                            <i class="fas fa-circle-check"></i> Đã lưu bài nói!
                         </h4>
                         <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                            Bạn đã hoàn thành IELTS Speaking Cue Card. Phân tích chi tiết sẽ được tự động đồng bộ hóa trên Bảng điều khiển của bạn. Hãy tiếp tục ôn luyện các chủ đề khác nhé!
+                            Bài nói đã được lưu vào lịch sử học tập của bạn. Hệ thống hiện <strong>chưa chấm điểm tự động</strong> kỹ năng Nói, nên bài này không có điểm. Hãy nghe lại phần ghi âm để tự đánh giá.
                         </p>
                     </div>
 
@@ -263,8 +244,7 @@
             const recordingStage = document.getElementById('recording-stage');
             const loadingStage = document.getElementById('loading-stage');
             const resultStage = document.getElementById('result-stage');
-            const bandScoreText = document.getElementById('band-score-text');
-
+            
             // CSRF Token Helper
             function getCookie(name) {
                 let cookieValue = null;
@@ -339,7 +319,7 @@
                         });
 
                         mediaRecorder.addEventListener('stop', () => {
-                            audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                            audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
                             const audioUrl = URL.createObjectURL(audioBlob);
                             audioPlayback.src = audioUrl;
 
@@ -409,7 +389,7 @@
 
                 // Package audio into form-data
                 const formData = new FormData();
-                formData.append('audio', audioBlob, 'speaking_sample.webm');
+                formData.append('audio', audioBlob, 'speaking_sample');
 
                 try {
                     const csrftoken = getCookie('csrftoken');
@@ -421,17 +401,16 @@
                         body: formData
                     });
 
+                    const data = await response.json();
                     if (!response.ok) {
-                        throw new Error('Nộp file nói bị thất bại ở phía máy chủ.');
+                        throw new Error(data.error || 'Nộp file nói bị thất bại ở phía máy chủ.');
                     }
 
-                    const data = await response.json();
                     if (data.status === 'success') {
                         // Render results stage
                         loadingStage.classList.add('hidden');
                         resultStage.classList.remove('hidden');
-                        bandScoreText.textContent = data.band.toFixed(1);
-                    } else {
+                                            } else {
                         throw new Error(data.error || 'Lỗi không xác định.');
                     }
 

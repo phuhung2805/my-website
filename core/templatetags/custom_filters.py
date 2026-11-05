@@ -1,3 +1,5 @@
+import random
+
 from django import template
 
 register = template.Library()
@@ -27,3 +29,11 @@ def split_string(value, arg):
         return value.split(arg)
     except AttributeError:
         return [value]
+
+
+@register.filter(name='shuffled')
+def shuffled(values):
+    """Trộn thứ tự đáp án khi hiển thị để vị trí không gợi ý đáp án đúng."""
+    items = list(values)
+    random.shuffle(items)
+    return items

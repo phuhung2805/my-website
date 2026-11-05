@@ -14,7 +14,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from core.models import Category, Flashcard, VocabSet, Vocabulary
+from core.models import Category, Flashcard, Vocabulary
 
 
 # ---------------------------------------------------------------------------
@@ -151,7 +151,6 @@ class Command(BaseCommand):
             vocab_count = self._seed_vocabulary_from_json(categories)
             extra_count = self._seed_extra_vocabulary(categories)
             massive_count = self._seed_massive_vocab()
-            flashcard_count = self._create_flashcards()
 
         self.stdout.write(
             self.style.SUCCESS(
@@ -160,7 +159,6 @@ class Command(BaseCommand):
                 f"   - {vocab_count} tu tu vocab.json\n"
                 f"   - {extra_count} tu bo sung\n"
                 f"   - {massive_count} tu tu massive_vocab.json\n"
-                f"   - {flashcard_count} flashcard da tao\n"
             )
         )
 
@@ -169,7 +167,6 @@ class Command(BaseCommand):
         self.stdout.write("[RESET] Dang xoa du lieu cu...")
         Flashcard.objects.all().delete()
         Vocabulary.objects.all().delete()
-        VocabSet.objects.all().delete()
         Category.objects.all().delete()
         self.stdout.write(self.style.WARNING("   Da xoa xong."))
 
@@ -274,14 +271,3 @@ class Command(BaseCommand):
                     
         self.stdout.write(f"   [MASSIVE JSON] Da seed {count} tu tu massive_vocab.json")
         return count
-
-    def _create_flashcards(self):
-        """Tạo Flashcard cho tất cả Vocabulary chưa có flashcard."""
-        vocabs_without_card = Vocabulary.objects.filter(flashcards__isnull=True)
-        flashcards = [
-            Flashcard(vocabulary=v, is_mastered=False)
-            for v in vocabs_without_card
-        ]
-        Flashcard.objects.bulk_create(flashcards, ignore_conflicts=True)
-        self.stdout.write(f"   [FLASH] Da tao {len(flashcards)} flashcard moi")
-        return len(flashcards)

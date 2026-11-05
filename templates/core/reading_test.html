@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ passage.title }} – IELTS Reading Test</title>
+    <title>{{ passage.title }} – Luyện Đọc</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -48,7 +48,7 @@
     <!-- 1. STICKY TOP TOOLBAR -->
     <header class="bg-slate-900 text-white h-16 px-4 sm:px-6 flex items-center justify-between border-b border-slate-800 z-30 flex-shrink-0">
         <div class="flex items-center gap-3">
-            <span class="bg-emerald-500 text-slate-900 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider">IELTS Reading</span>
+            <span class="bg-emerald-500 text-slate-900 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider">Luyện Đọc</span>
             <h1 class="font-bold text-sm sm:text-base truncate max-w-[200px] sm:max-w-xs md:max-w-md lg:max-w-lg text-slate-100">
                 {{ passage.title }}
             </h1>
@@ -122,8 +122,8 @@
                         </div>
                         
                         <div class="flex items-end gap-3">
-                            <span class="text-5xl font-black text-emerald-400 tracking-tight leading-none">{{ band }}</span>
-                            <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">Band Score IELTS</span>
+                            <span class="text-5xl font-black text-emerald-400 tracking-tight leading-none">{{ skill_score }}</span>
+                            <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">Điểm / thang 10</span>
                         </div>
                         
                         <p class="text-slate-200 text-xs sm:text-sm leading-relaxed italic">
@@ -185,7 +185,7 @@
                                 <!-- Multiple Choice Render -->
                                 {% if q.question_type == 'multiple_choice' %}
                                 <div class="grid grid-cols-1 gap-2">
-                                    {% for opt in q.options %}
+                                    {% for opt in q.options|shuffled %}
                                     {% with opt_char=forloop.counter|char_choice %}
                                     <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer text-sm
                                                   hover:border-emerald-500 hover:bg-emerald-50/30 transition-all select-none
@@ -196,8 +196,8 @@
                                         <input class="sr-only" 
                                                type="radio" 
                                                name="q_{{ q.id }}" 
-                                               value="{{ opt_char }}"
-                                               {% if mode == 'result' and res_details.user_answer == opt_char %}checked{% endif %}
+                                               value="{{ opt }}"
+                                               {% if mode == 'result' and res_details.raw_answer == opt %}checked{% endif %}
                                                required>
                                         
                                         <!-- Custom alphabet node A, B, C, D -->

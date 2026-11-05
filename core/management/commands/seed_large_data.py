@@ -1,4 +1,6 @@
 import json
+from pathlib import Path
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.conf import settings
@@ -7,11 +9,17 @@ from core.models import (
     ReadingPassage, ReadingQuestion,
     ListeningTrack, ListeningQuestion,
     WritingTask, SpeakingPrompt,
-    VocabularyQuestion
+)
+
+# Từ ghép tự động bị loại vì không có trong từ điển, tần suất quá thấp hoặc sai nghĩa.
+REJECTED_WORDS = frozenset(
+    (Path(__file__).resolve().parents[2] / "data" / "rejected_vocabulary.txt")
+    .read_text(encoding="utf-8")
+    .split()
 )
 
 # ---------------------------------------------------------------------------
-# Morphology Rules Engine for Scale-up Vocabulary (3000 Words)
+# Morphology Rules Engine
 # ---------------------------------------------------------------------------
 
 def add_suffix(word, suffix):
@@ -724,60 +732,6 @@ SPEAKING_PROMPTS = {
 # Seed 15 Vocabulary Questions per level (45 total)
 # ---------------------------------------------------------------------------
 
-VOCAB_QUESTIONS = {
-    "A1": [
-        ("Từ nào sau đây có nghĩa là 'gia đình'?", ["school", "book", "family", "friend"], "family"),
-        ("Từ 'teacher' có nghĩa tiếng Việt là gì?", ["học sinh", "giáo viên", "bác sĩ", "y tá"], "giáo viên"),
-        ("Chọn từ viết đúng chính tả cho từ 'xin chào':", ["helo", "hello", "hellow", "heloo"], "hello"),
-        ("Từ nào là 'bút mực'?", ["pencil", "pen", "desk", "paper"], "pen"),
-        ("Điền từ vào chỗ trống: 'I sleep in my ______.'", ["chair", "desk", "bed", "clock"], "bed"),
-        ("Từ 'milk' thuộc loại từ nào?", ["Động từ", "Danh từ", "Tính từ", "Trạng từ"], "Danh từ"),
-        ("Từ nào có nghĩa là 'nóng'?", ["cold", "hot", "warm", "cool"], "hot"),
-        ("Từ 'run' có nghĩa là gì?", ["đi bộ", "chạy", "ngủ", "chơi"], "chạy"),
-        ("Chọn từ trái nghĩa với 'happy':", ["sad", "good", "angry", "tired"], "sad"),
-        ("Từ nào có nghĩa là 'quả táo'?", ["orange", "banana", "apple", "milk"], "apple"),
-        ("Từ 'student' nghĩa là gì?", ["học sinh/sinh viên", "giáo viên", "người lớn", "trẻ em"], "học sinh/sinh viên"),
-        ("Điền từ: 'Please close the ______ because it is cold.'", ["window", "table", "clock", "floor"], "window"),
-        ("Từ nào nghĩa là 'thành phố'?", ["country", "town", "city", "village"], "city"),
-        ("Từ 'buy' thuộc nhóm từ loại nào?", ["noun", "verb", "adjective", "adverb"], "verb"),
-        ("Từ 'water' nghĩa là gì?", ["sữa", "nước", "bánh mì", "cam"], "nước")
-    ],
-    "A2": [
-        ("Từ 'travel' có nghĩa là gì?", ["khám phá", "du lịch", "chuyến bay", "sân bay"], "du lịch"),
-        ("Từ nào sau đây nghĩa là 'ngọn núi'?", ["beach", "lake", "mountain", "river"], "mountain"),
-        ("Điền từ vào chỗ trống: 'We arrived at the ______ to catch our flight.'", ["hotel", "airport", "museum", "garden"], "airport"),
-        ("Từ 'luggage' có nghĩa là gì?", ["vé", "hành lý", "khách sạn", "tour du lịch"], "hành lý"),
-        ("Từ nào có nghĩa là 'mùa đông'?", ["spring", "summer", "autumn", "winter"], "winter"),
-        ("Từ 'medicine' nghĩa là gì?", ["bác sĩ", "y tá", "thuốc", "bệnh viện"], "thuốc"),
-        ("Từ nào sau đây nghĩa là 'nghệ sĩ'?", ["actor", "artist", "writer", "poet"], "artist"),
-        ("Điền từ: 'The tour ______ showed us around the ancient museum.'", ["guide", "writer", "reporter", "nurse"], "guide"),
-        ("Từ 'explore' có nghĩa là gì?", ["khám phá", "nghỉ ngơi", "chạy bộ", "chụp ảnh"], "khám phá"),
-        ("Chọn từ có nghĩa là 'khí hậu':", ["weather", "climate", "season", "wind"], "climate"),
-        ("Từ 'movie' đồng nghĩa với từ nào sau đây?", ["song", "painting", "film", "drawing"], "film"),
-        ("Từ 'hotel' nghĩa là gì?", ["sân bay", "viện bảo tàng", "khách sạn", "nhà hát"], "khách sạn"),
-        ("Từ 'camera' dùng để làm gì?", ["nghe nhạc", "chụp ảnh", "đọc báo", "viết bài"], "chụp ảnh"),
-        ("Từ nào nghĩa là 'bức họa'?", ["painting", "drawing", "photo", "camera"], "painting"),
-        ("Từ 'health' có nghĩa là gì?", ["thể thao", "trận đấu", "sức khỏe", "bài tập"], "sức khỏe")
-    ],
-    "B1": [
-        ("Từ 'achieve' có nghĩa là gì?", ["đạt được", "thất bại", "phát triển", "triển khai"], "đạt được"),
-        ("Từ nào sau đây nghĩa là 'phức tạp'?", ["simple", "complex", "constant", "efficient"], "complex"),
-        ("Điền từ: 'We need to ______ the database queries for faster results.'", ["direct", "optimize", "install", "restore"], "optimize"),
-        ("Từ 'feedback' nghĩa là gì?", ["phản hồi", "yêu cầu", "báo cáo", "tóm tắt"], "phản hồi"),
-        ("Từ nào có nghĩa là 'bằng chứng'?", ["conclusion", "evidence", "analysis", "concept"], "evidence"),
-        ("Từ 'secure' có nghĩa là gì?", ["nguy hiểm", "bảo mật, an toàn", "chậm trễ", "phức tạp"], "bảo mật, an toàn"),
-        ("Từ 'deadline' nghĩa là gì?", ["hạn chót", "lịch trình", "báo cáo", "cuộc họp"], "hạn chót"),
-        ("Chọn từ có nghĩa là 'sự đổi mới sáng tạo':", ["strategy", "innovation", "analysis", "resource"], "innovation"),
-        ("Từ 'client' nghĩa là gì?", ["máy chủ", "máy khách / khách hàng", "phần mềm", "tài nguyên"], "máy khách / khách hàng"),
-        ("Từ 'implement' nghĩa là gì?", ["lên kế hoạch", "thực thi, triển khai", "đánh giá", "sao lưu"], "thực thi, triển khai"),
-        ("Từ 'database' nghĩa là gì?", ["hệ thống", "cơ sở dữ liệu", "mạng lưới", "phần cứng"], "cơ sở dữ liệu"),
-        ("Từ 'framework' nghĩa là gì?", ["khung làm việc", "phần mềm", "mã nguồn", "ứng dụng"], "khung làm việc"),
-        ("Điền từ: 'Please enter your ______ to login to your account.'", ["password", "profile", "notification", "status"], "password"),
-        ("Từ 'progress' có nghĩa là gì?", ["trạng thái", "tiến trình, tiến bộ", "kết quả", "tổng cộng"], "tiến trình, tiến bộ"),
-        ("Từ 'efficiency' (danh từ của efficient) nghĩa là gì?", ["sự phức tạp", "hiệu suất, hiệu quả", "sự đổi mới", "sự an toàn"], "hiệu suất, hiệu quả")
-    ]
-}
-
 # ---------------------------------------------------------------------------
 # Topic Classification Helper
 # ---------------------------------------------------------------------------
@@ -825,21 +779,29 @@ def classify_topic(word, word_type):
 # ---------------------------------------------------------------------------
 
 class Command(BaseCommand):
-    help = "Seed database with 3000 unique vocabularies and 84 detailed skills lessons."
+    help = "Tạo kho từ vựng A1–B1 đã lọc qua từ điển và các bài luyện 4 kỹ năng."
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--reset",
+            action="store_true",
+            help="Xóa toàn bộ từ vựng, flashcard và bài học hiện có rồi tạo lại.",
+        )
 
     def handle(self, *args, **options):
-        self.stdout.write("Clearing existing database contents...")
-        self._clear_data()
+        if options["reset"]:
+            self.stdout.write("Clearing existing database contents...")
+            self._clear_data()
+        elif Vocabulary.objects.exists():
+            self.stdout.write("Da co du lieu, bo qua. Dung --reset neu muon tao lai.")
+            return
 
         with transaction.atomic():
             self.stdout.write("Creating Category nodes...")
             categories = self._create_categories()
 
-            self.stdout.write("Generating and seeding 3000 vocabulary words...")
+            self.stdout.write("Generating and seeding vocabulary words...")
             self._seed_vocabulary(categories)
-
-            self.stdout.write("Seeding 45 vocabulary questions...")
-            self._seed_vocabulary_questions()
 
             self.stdout.write("Seeding 84 detailed skills lessons & questions...")
             self._seed_skills()
@@ -856,7 +818,6 @@ class Command(BaseCommand):
         ListeningTrack.objects.all().delete()
         WritingTask.objects.all().delete()
         SpeakingPrompt.objects.all().delete()
-        VocabularyQuestion.objects.all().delete()
 
     def _create_categories(self):
         cats = {}
@@ -916,6 +877,10 @@ class Command(BaseCommand):
                         w = add_suffix(base_word, s)
                         w_lower = w.lower()
                         
+                        # Chỉ giữ từ ghép đã qua đối chiếu từ điển
+                        if w_lower in REJECTED_WORDS or "_" in w_lower:
+                            continue
+
                         if w_lower not in global_seen and w_lower not in seen_in_level:
                             global_seen.add(w_lower)
                             seen_in_level.add(w_lower)
@@ -990,26 +955,7 @@ class Command(BaseCommand):
                     ))
 
             Vocabulary.objects.bulk_create(level_words[:1000])
-            self.stdout.write(f"   - Seeded {len(level_words[:1000])} unique real words for {level}")
-
-        # Create Flashcards for all vocabulary objects
-        vocabs = Vocabulary.objects.all()
-        flashcards = [Flashcard(vocabulary=v, is_mastered=False) for v in vocabs]
-        Flashcard.objects.bulk_create(flashcards)
-        self.stdout.write(f"   - Created {len(flashcards)} flashcards")
-
-    def _seed_vocabulary_questions(self):
-        q_objs = []
-        for level in ["A1", "A2", "B1"]:
-            for q_text, opts, ans in VOCAB_QUESTIONS[level]:
-                q_objs.append(VocabularyQuestion(
-                    question_text=q_text,
-                    options=opts,
-                    correct_answer=ans,
-                    level=level
-                ))
-        VocabularyQuestion.objects.bulk_create(q_objs)
-        self.stdout.write(f"   - Seeded {len(q_objs)} vocabulary questions")
+            self.stdout.write(f"   - Seeded {len(level_words[:1000])} words for {level}")
 
     def _seed_skills(self):
         # 1. Reading

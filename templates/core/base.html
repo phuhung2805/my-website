@@ -140,17 +140,17 @@
                     <div class="flex items-center gap-3">
                         <!-- Level Switcher -->
                         <div class="flex items-center bg-brand-800/40 rounded-xl p-0.5 border border-white/10 mr-1 shadow-inner">
-                            <a href="/course/a1/" class="px-3 py-1 rounded-lg text-xs font-extrabold transition-all {% if active_level == 'A1' or not active_level %}bg-amber-400 text-brand-900 shadow-sm{% else %}text-white/70 hover:text-white hover:bg-white/5{% endif %}">A1</a>
-                            <a href="/course/a2/" class="px-3 py-1 rounded-lg text-xs font-extrabold transition-all {% if active_level == 'A2' %}bg-amber-400 text-brand-900 shadow-sm{% else %}text-white/70 hover:text-white hover:bg-white/5{% endif %}">A2</a>
-                            <a href="/course/b1/" class="px-3 py-1 rounded-lg text-xs font-extrabold transition-all {% if active_level == 'B1' %}bg-amber-400 text-brand-900 shadow-sm{% else %}text-white/70 hover:text-white hover:bg-white/5{% endif %}">B1</a>
-                            <a href="/course/b2/" class="px-3 py-1 rounded-lg text-xs font-extrabold transition-all {% if active_level == 'B2' %}bg-amber-400 text-brand-900 shadow-sm{% else %}text-white/70 hover:text-white hover:bg-white/5{% endif %}">B2</a>
+                            {% include "core/_level_tabs.html" with tab_class="px-3 py-1 rounded-lg text-xs" %}
                         </div>
                         <span class="text-white/90 text-sm font-medium">
                             Chào, <span class="text-amber-300 font-extrabold">{{ request.user.username }}</span>! 👋
                         </span>
-                        <a href="{% url 'logout' %}" class="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
-                            <i class="fas fa-right-from-bracket"></i> Đăng xuất
-                        </a>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="px-3.5 py-2 bg-white/15 hover:bg-white/25 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5">
+                                <i class="fas fa-right-from-bracket"></i> Đăng xuất
+                            </button>
+                        </form>
                     </div>
                     {% else %}
                     <a href="{% url 'login' %}" class="px-4 py-2 text-white/90 hover:text-white hover:bg-white/15 rounded-lg text-sm font-medium transition-all">
@@ -180,10 +180,7 @@
                     <div class="px-4 py-2 text-white/90 text-sm border-b border-white/10 mb-2 flex items-center justify-between gap-2">
                         <span>Chào, <span class="text-amber-300 font-extrabold">{{ request.user.username }}</span>! 👋</span>
                         <div class="flex items-center bg-brand-800/40 rounded-xl p-0.5 border border-white/10 shadow-inner">
-                            <a href="/course/a1/" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all {% if active_level == 'A1' or not active_level %}bg-amber-400 text-brand-900{% else %}text-white/70{% endif %}">A1</a>
-                            <a href="/course/a2/" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all {% if active_level == 'A2' %}bg-amber-400 text-brand-900{% else %}text-white/70{% endif %}">A2</a>
-                            <a href="/course/b1/" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all {% if active_level == 'B1' %}bg-amber-400 text-brand-900{% else %}text-white/70{% endif %}">B1</a>
-                            <a href="/course/b2/" class="px-2 py-0.5 rounded-lg text-[10px] font-extrabold transition-all {% if active_level == 'B2' %}bg-amber-400 text-brand-900{% else %}text-white/70{% endif %}">B2</a>
+                            {% include "core/_level_tabs.html" with tab_class="px-2 py-0.5 rounded-lg text-[10px]" %}
                         </div>
                     </div>
                     
@@ -207,11 +204,13 @@
                         <i class="fas fa-rocket w-5 text-center text-amber-300"></i>
                         <span>Thi nâng band</span>
                     </a>
-                    <a href="{% url 'logout' %}"
-                       class="flex items-center gap-3 px-4 py-3 rounded-xl text-red-200 hover:text-white hover:bg-red-500/20 transition-all font-medium font-medium">
-                        <i class="fas fa-right-from-bracket w-5 text-center"></i>
-                        <span>Đăng xuất</span>
-                    </a>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-200 hover:text-white hover:bg-red-500/20 transition-all font-medium">
+                            <i class="fas fa-right-from-bracket w-5 text-center"></i>
+                            <span>Đăng xuất</span>
+                        </button>
+                    </form>
                     {% else %}
                     <a href="{% url 'login' %}"
                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:text-white hover:bg-white/15 transition-all font-medium">
@@ -233,6 +232,13 @@
          MAIN CONTENT
     ============================================================ -->
     <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-10 animate-slide-up">
+        {% if messages %}
+        <div class="space-y-2 mb-6" role="status">
+            {% for message in messages %}
+            <p class="px-4 py-3 rounded-xl text-sm font-semibold border {% if message.tags == 'warning' %}bg-amber-50 border-amber-200 text-amber-800{% else %}bg-brand-50 border-brand-100 text-brand-800{% endif %}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% block content %}{% endblock %}
     </main>
 

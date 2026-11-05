@@ -9,3 +9,11 @@ staticfiles/
 __pycache__/
 *.pyc
 
+db.sqlite3
+db.sqlite3.bak*
+media/
+.coverage
+.pytest_cache/
+.vs/
+.claude/
+~$*

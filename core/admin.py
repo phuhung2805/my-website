@@ -4,9 +4,7 @@ from django.contrib import admin
 from .models import (
     Category,
     Flashcard,
-    QuizResult,
     Vocabulary,
-    VocabSet,
     UserProfile,
     ReadingPassage,
     ReadingQuestion,
@@ -29,14 +27,6 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
 
-@admin.register(VocabSet)
-class VocabSetAdmin(admin.ModelAdmin):
-    list_display = ("title", "user", "created_at")
-    list_filter = ("user",)
-    search_fields = ("title",)
-    readonly_fields = ("created_at",)
-
-
 @admin.register(Vocabulary)
 class VocabularyAdmin(admin.ModelAdmin):
     list_display = ("word", "ipa", "word_type", "meaning", "category", "user")
@@ -48,13 +38,6 @@ class VocabularyAdmin(admin.ModelAdmin):
 class FlashcardAdmin(admin.ModelAdmin):
     list_display = ("vocabulary", "user", "is_mastered", "review_count")
     list_filter = ("is_mastered", "user")
-
-
-@admin.register(QuizResult)
-class QuizResultAdmin(admin.ModelAdmin):
-    list_display = ("user", "category", "score", "total", "percentage", "completed_at")
-    list_filter = ("user", "category")
-    readonly_fields = ("completed_at",)
 
 
 @admin.register(UserProfile)

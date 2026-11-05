@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ track.title }} – IELTS Listening Test</title>
+    <title>{{ track.title }} – Luyện Nghe</title>
 
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -49,7 +49,7 @@
         <!-- Top Toolbar -->
         <div class="px-4 sm:px-6 h-14 flex items-center justify-between border-b border-slate-800/60">
             <div class="flex items-center gap-3">
-                <span class="bg-emerald-500 text-slate-900 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">IELTS Listening</span>
+                <span class="bg-emerald-500 text-slate-900 text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider">Luyện Nghe</span>
                 <h1 class="font-bold text-sm sm:text-base truncate max-w-xs md:max-w-md text-slate-100">
                     {{ track.title }}
                 </h1>
@@ -92,21 +92,32 @@
                 </div>
                 <div>
                     <p class="text-xs font-bold text-slate-300">Listening Audio Track</p>
-                    <p class="text-[10px] text-slate-500 truncate max-w-[200px]">{{ track.audio_file|default:"IELTS Section 1 Practice" }}</p>
+                    <p class="text-[10px] text-slate-500 truncate max-w-[200px]">{% if track.audio_file %}{{ track.audio_file }}{% else %}Giọng đọc của trình duyệt{% endif %}</p>
                 </div>
             </div>
             
             <!-- Standard Audio Player with modern layout -->
             <div class="w-full sm:max-w-md flex items-center gap-3">
+                {% if track.audio_file %}
                 <audio id="listening-audio" class="w-full h-8 accent-emerald-500 focus:outline-none" controls preload="auto">
-                    {% if track.audio_file %}
                     <source src="{{ MEDIA_URL }}{{ track.audio_file }}" type="audio/mpeg">
-                    {% else %}
-                    <!-- Fallback placeholder audio -->
-                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-                    {% endif %}
                     Trình duyệt của bạn không hỗ trợ audio element.
                 </audio>
+                {% else %}
+                <button type="button" id="tts-play" class="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-900 font-bold text-xs rounded-lg flex items-center gap-1.5">
+                    <i class="fas fa-play"></i> <span>Phát bài nghe</span>
+                </button>
+                <button type="button" id="tts-stop" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-lg border border-slate-700">
+                    <i class="fas fa-stop"></i> Dừng
+                </button>
+                <label class="text-[11px] text-slate-400 flex items-center gap-1">Tốc độ
+                    <select id="tts-rate" class="bg-slate-800 border border-slate-700 rounded px-1 py-0.5 text-slate-100">
+                        <option value="0.8">Chậm</option>
+                        <option value="1" selected>Thường</option>
+                    </select>
+                </label>
+                <p id="tts-error" class="hidden text-[11px] text-red-300">Trình duyệt không hỗ trợ đọc văn bản.</p>
+                {% endif %}
             </div>
         </div>
     </header>
@@ -126,14 +137,24 @@
                     </div>
                     
                     <div class="flex items-end gap-3">
-                        <span class="text-5xl font-black text-emerald-400 tracking-tight leading-none">{{ band }}</span>
-                        <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">IELTS Band Score</span>
+                        <span class="text-5xl font-black text-emerald-400 tracking-tight leading-none">{{ skill_score }}</span>
+                        <span class="text-slate-400 font-bold text-xs uppercase pb-1.5 tracking-wider">Điểm / thang 10</span>
                     </div>
                     
                     <p class="text-slate-300 text-sm leading-relaxed">
                         Chúc mừng bạn đã hoàn thành bài luyện nghe! Hãy xem lại các câu làm sai bên dưới để tiếp tục rèn kỹ năng.
                     </p>
                 </div>
+            </div>
+            {% endif %}
+
+            {% if mode == 'result' and track.transcript %}
+            <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+                <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2 mb-2">
+                    <i class="fas fa-file-lines text-emerald-500"></i>
+                    Lời thoại (Transcript)
+                </h3>
+                <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ track.transcript }}</p>
             </div>
             {% endif %}
 
@@ -144,7 +165,7 @@
                     Hướng dẫn làm bài (Instructions)
                 </h3>
                 <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
-                    Nhấn vào nút **Play** ở trên thanh Audio Player để phát tệp âm thanh bài nghe. Bạn vừa nghe vừa điền/chọn đáp án bên dưới tương ứng với từng câu hỏi. Tệp âm thanh chỉ phát **duy nhất một lần** trong kỳ thi IELTS thực tế.
+                    Nhấn nút phát ở thanh phía trên để nghe bài, rồi chọn hoặc điền đáp án cho từng câu hỏi. Bạn có thể nghe lại nhiều lần; lời thoại sẽ hiện sau khi nộp bài.
                 </p>
             </div>
 
@@ -191,7 +212,7 @@
                             <!-- Type 1: Multiple Choice choices -->
                             {% if q.question_type == 'multiple_choice' %}
                             <div class="grid grid-cols-1 gap-2">
-                                {% for opt in q.options %}
+                                {% for opt in q.options|shuffled %}
                                 {% with opt_char=forloop.counter|char_choice %}
                                 <label class="flex items-center gap-3 p-3 rounded-xl border border-slate-200 cursor-pointer text-sm
                                               hover:border-emerald-500 hover:bg-emerald-50/30 transition-all select-none
@@ -200,8 +221,8 @@
                                     <input class="sr-only" 
                                            type="radio" 
                                            name="q_{{ q.id }}" 
-                                           value="{{ opt_char }}"
-                                           {% if mode == 'result' and res_details.user_answer == opt_char %}checked{% endif %}
+                                           value="{{ opt }}"
+                                           {% if mode == 'result' and res_details.raw_answer == opt %}checked{% endif %}
                                            required>
                                     <span class="flex-shrink-0 w-6 h-6 rounded-lg border-2 border-slate-300 text-slate-500 font-bold text-xs flex items-center justify-center transition-all">
                                         {{ opt_char }}
@@ -249,6 +270,33 @@
 
         </div>
     </main>
+
+    {% if not track.audio_file %}
+    {{ track.transcript|json_script:"tts-transcript" }}
+    <script>
+        (function() {
+            const playBtn = document.getElementById('tts-play');
+            const stopBtn = document.getElementById('tts-stop');
+            const rate = document.getElementById('tts-rate');
+            if (!('speechSynthesis' in window)) {
+                playBtn.disabled = true;
+                stopBtn.disabled = true;
+                document.getElementById('tts-error').classList.remove('hidden');
+                return;
+            }
+            const transcript = JSON.parse(document.getElementById('tts-transcript').textContent);
+            playBtn.addEventListener('click', function() {
+                speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(transcript);
+                utterance.lang = 'en-US';
+                utterance.rate = parseFloat(rate.value);
+                speechSynthesis.speak(utterance);
+            });
+            stopBtn.addEventListener('click', function() { speechSynthesis.cancel(); });
+            window.addEventListener('beforeunload', function() { speechSynthesis.cancel(); });
+        })();
+    </script>
+    {% endif %}
 
     <!-- COUNTDOWN TIMER JS -->
     {% if mode == 'test' %}
