@@ -1,4 +1,5 @@
 {% extends "core/base.html" %}
+{% load custom_filters %}
 
 {% block title %}Kết Quả Bài Thi Nâng Band – English Pro{% endblock %}
 
@@ -83,7 +84,7 @@
             </span>
         </div>
         <p class="text-xs sm:text-sm text-purple-100 leading-relaxed font-normal whitespace-pre-line">
-            {{ ai_feedback.feedback }}
+            {{ ai_feedback.feedback|bold_markdown }}
         </p>
     </div>
     {% endif %}

@@ -4,7 +4,7 @@
 * **Học phần:** Phân tích thiết kế hệ thống
 * **Sinh viên thực hiện:** Đặng Quang Hưng
 * **Công nghệ:** Python 3.11, Django 5.2, SQLite, Tailwind CSS, Google Gemini REST API
-* **Kết quả kiểm thử:** 86/86 test đạt; độ phủ `views.py` 90%, `services.py` 96%, `models.py` 93%, `ai_service.py` 79%
+* **Kết quả kiểm thử:** 89/89 test đạt; độ phủ `views.py` 90%, `services.py` 96%, `models.py` 93%, `ai_service.py` 79%
 * **Tài liệu thiết kế UML:** [docs/THIET_KE_UML.md](docs/THIET_KE_UML.md)
 
 ---
@@ -67,7 +67,7 @@ Có manifest và Service Worker. Trang có dữ liệu cá nhân không được
 
 ## 3. Kiểm thử
 
-Chạy bằng `pytest core/tests.py` hoặc `python manage.py test core`. Bộ test gồm 86 ca, trong đó các nhóm mới bao phủ:
+Chạy bằng `pytest core/tests.py` hoặc `python manage.py test core`. Bộ test gồm 89 ca, trong đó các nhóm mới bao phủ:
 * Bảo mật: mật khẩu yếu, open redirect, quyền xem kết quả, đổi dữ liệu phải dùng POST.
 * Quy tắc trình độ: khóa cấp độ, làm bài đầu vào một lần, gán kết quả của khách.
 * Thi nâng band: ngân hàng đề riêng, giữ đề khi tải lại, nộp quá giờ, thời gian chờ thi lại.

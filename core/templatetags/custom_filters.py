@@ -1,6 +1,9 @@
 import random
+import re
 
 from django import template
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 
 register = template.Library()
 
@@ -37,3 +40,10 @@ def shuffled(values):
     items = list(values)
     random.shuffle(items)
     return items
+
+
+@register.filter(name='bold_markdown')
+def bold_markdown(value):
+    """Hiển thị **chữ** thành in đậm; thoát HTML trước vì nhận xét có thể đến từ Gemini."""
+    html = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", str(escape(value or "")))
+    return mark_safe(html)

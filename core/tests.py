@@ -38,6 +38,7 @@ from .ai_service import (
 )
 from .management.commands.seed_large_data import REJECTED_WORDS
 from .services import EXAM_SESSION_KEY, apply_sm2
+from .templatetags.custom_filters import bold_markdown
 
 
 # ===========================================================================
@@ -1182,3 +1183,31 @@ class SeedContentTests(TestCase):
         Vocabulary.objects.create(category=category, word="keep", meaning="m")
         call_command("seed_large_data", verbosity=0)
         self.assertEqual(Vocabulary.objects.count(), 1)
+
+
+class FeedbackRenderingTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user("feedback_user", password="Mat-khau-thu-123")
+        self.client.force_login(self.user)
+
+    def test_filter_renders_bold_and_escapes_html(self):
+        html = bold_markdown("<script>x</script> **90%** va **B2**")
+        self.assertEqual(html, "&lt;script&gt;x&lt;/script&gt; <strong>90%</strong> va <strong>B2</strong>")
+
+    def test_filter_handles_empty_and_unpaired_marks(self):
+        self.assertEqual(bold_markdown(None), "")
+        self.assertEqual(bold_markdown("a ** b"), "a ** b")
+
+    def test_result_pages_show_bold_instead_of_raw_marks(self):
+        feedback = {"success": True, "feedback": "Ket qua **90%**", "source": "fallback"}
+        placement = PlacementTestResult.objects.create(
+            user=self.user, score=9, total_questions=10, assigned_level="B2", ai_feedback=feedback,
+        )
+        level_up = LevelUpExamResult.objects.create(
+            user=self.user, from_level="B1", target_level="B2", score=9, total_questions=10,
+            is_passed=True, ai_feedback=feedback,
+        )
+        for url in (reverse("placement_result", args=[placement.id]), reverse("level_up_result", args=[level_up.id])):
+            response = self.client.get(url)
+            self.assertContains(response, "Ket qua <strong>90%</strong>")
+            self.assertNotContains(response, "**90%**")
